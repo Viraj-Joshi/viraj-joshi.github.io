@@ -1,0 +1,15 @@
+jupyter-book
+sphinx-autobuild
+sphinx-togglebutton
+sphinx-copybutton
+myst-nb
+jupyter-book
+sphinx-thebe
+sphinx-comments
+sphinx-external-toc
+sphinx-design
+sphinx-book-theme
+sphinxcontrib-bibtex
+sphinx-jupyterbook-latex
+sphinx-multitoc-numbering
+linkify-it-py

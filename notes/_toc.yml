@@ -1,0 +1,17 @@
+# Table of contents
+# Learn more at https://jupyterbook.org/customize/toc.html
+
+format: jb-book
+root: index
+parts:
+  - caption: Reinforcement Learning
+    chapters:
+      - file: 1-RL/Implicit-Value-Regularization
+  - caption: Diffusion and Flow Models
+    chapters:
+      - file: 2-diffusion-and-flow-models/Score-Matching
+# chapters:
+# - file: markdown
+# - file: notebooks
+# - file: markdown-notebooks
+# - file: chap1/1

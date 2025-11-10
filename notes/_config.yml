@@ -1,0 +1,45 @@
+# Book settings
+# Learn more at https://jupyterbook.org/customize/config.html
+
+title: my notes
+author: Viraj Joshi
+# logo: logo.png
+
+# Force re-execution of notebooks on each build.
+# See https://jupyterbook.org/content/execute.html
+execute:
+  execute_notebooks: off
+
+# Define the name of the latex output file for PDF builds
+latex:
+  latex_documents:
+    targetname: book.tex
+
+# Add a bibtex file so that we can create citations
+bibtex_bibfiles:
+  - references.bib
+
+# Information about where the book exists on the web
+repository:
+  url: https://github.com/Viraj-Joshi/Viraj-Joshi.github.io/notes  # Online location of your book
+  branch: main  # Which branch of the repository should be used when creating links (optional)
+
+# Add GitHub buttons to your book
+# See https://jupyterbook.org/customize/config.html#add-a-link-to-your-repository
+html:
+  use_issues_button: true
+  use_repository_button: false
+  home_page_in_navbar: false
+
+sphinx:
+  recursive_update: true
+  config:
+    html_static_path: ["_static"]
+    html_css_files: ["custom.css"]
+    html_context:
+      default_mode: light
+    html_theme_options:
+      use_download_button: false
+
+launch_buttons:
+  colab_url: "https://colab.research.google.com"
