@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Implicit Value Regularization (IVR) &#8212; some technical notes</title>
+    <title>Implicit Value Regularization (IVR) &#8212; some technical perusings</title>
   
   
   
@@ -30,12 +30,13 @@
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../_static/proof.css?v=b4b7a797" />
     <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=13237357" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css?v=6644e6bb" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css?v=4fa983c6" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=25df36a0" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=af25d5d1" />
   
   <!-- Pre-loaded scripts that we'll load fully later -->
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
@@ -61,7 +62,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = '1-RL/Implicit-Value-Regularization';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Score Matching" href="../2-diffusion-models/Score-Matching.html" />
+    <link rel="next" title="Score Matching" href="../2-diffusion-and-flow-models/Score-Matching.html" />
     <link rel="prev" title="some technical perusings" href="../index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -150,7 +151,7 @@
   
   
   
-    <p class="title logo__title">some technical notes</p>
+    <p class="title logo__title">some technical perusings</p>
   
 </a></div>
         <div class="sidebar-primary-item">
@@ -170,9 +171,11 @@
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Implicit Value Regularization (IVR)</a></li>
 </ul>
-<p aria-level="2" class="caption" role="heading"><span class="caption-text">Diffusion Models</span></p>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Diffusion and Flow Models</span></p>
 <ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="../2-diffusion-models/Score-Matching.html">Score Matching</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../2-diffusion-and-flow-models/Score-Matching.html">Score Matching</a></li>
+
+
 
 
 </ul>
@@ -316,7 +319,19 @@ document.write(`
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#theorem-1">Theorem 1</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#instantiating-a-practical-algorithm">Instantiating a practical algorithm</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sparse-q-learning">Sparse Q-Learning</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sparse-q-learning">Sparse Q-Learning</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sql-u">SQL-U</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#u-is-not-computable"><span class="math notranslate nohighlight">\(U*\)</span> is not computable</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pi-is-not-computable-either"><span class="math notranslate nohighlight">\(\pi^*\)</span> is not computable either</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sql">SQL</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#v">V</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pi"><span class="math notranslate nohighlight">\(\pi^*\)</span></a></li>
+</ul>
+</li>
 </ul>
             </nav>
         </div>
@@ -490,7 +505,7 @@ $<span class="math notranslate nohighlight">\(f(x) = x-1 \implies f'(x) = 1\)</s
 \[h'_f(x) = f(x) + xf'(x) = (x-1) + x(1) = 2x - 1\]</div>
 <div class="math notranslate nohighlight">
 \[g_f(y) = \frac{1}{2}y + \frac{1}{2}\]</div>
-<p>With this we can define the relevant objects</p>
+<p>With this we can define the relevant optimization objectives</p>
 <ol class="arabic">
 <li><p>Substitute <span class="math notranslate nohighlight">\(g_f(y)\)</span> into general policy form from Theorem 1:</p>
 <div class="math notranslate nohighlight">
@@ -505,6 +520,158 @@ $<span class="math notranslate nohighlight">\(f(x) = x-1 \implies f'(x) = 1\)</s
 \[V^*(s) = U^*(s) + \alpha \mathbb{E}_{a \sim \mu} \left[ \left(\frac{\pi^*(a|s)}{\mu(a|s)}\right)^2 \right]\]</div>
 </li>
 </ol>
+<section id="sql-u">
+<h3>SQL-U<a class="headerlink" href="#sql-u" title="Link to this heading">#</a></h3>
+<section id="u-is-not-computable">
+<h4><span class="math notranslate nohighlight">\(U*\)</span> is not computable<a class="headerlink" href="#u-is-not-computable" title="Link to this heading">#</a></h4>
+<p>Unfortunately, <span class="math notranslate nohighlight">\(U^*(s)\)</span> is not tractable to compute from this expectation, so the authors come up with clever minimization problem where its solution <span class="math notranslate nohighlight">\(U^*\)</span> exactly satisfies this probability constraint.</p>
+<div class="math notranslate nohighlight">
+\[L(U) = \mathbb{E}_{a \sim \mu} \left[ \left(\max\left\{ \frac{1}{2} + \frac{Q^*(s,a) - U(s)}{2\alpha}, 0 \right\}\right)^2 \right] + \frac{U(s)}{\alpha}\]</div>
+<p>The solution <span class="math notranslate nohighlight">\(U^*\)</span> is just where the <span class="math notranslate nohighlight">\(\nabla_u L(U)\)</span>=0.</p>
+<p>To see this, define <span class="math notranslate nohighlight">\(X(a, U) = \frac{1}{2} + \frac{Q^*(s,a) - U(s)}{2\alpha}\)</span> for clarity, so</p>
+<div class="math notranslate nohighlight">
+\[L(U) = \mathbb{E}_{a \sim \mu} \left[ (\max\{X(a, U), 0\})^2 \right] + \frac{U(s)}{\alpha}\]</div>
+<div class="math notranslate nohighlight">
+\[\frac{dL(U)}{dU(s)} = \frac{d}{dU(s)} \left( \mathbb{E}_{a \sim \mu} \left[ (\max\{X(\alpha,U), 0\})^2 \right] + \frac{U(s)}{\alpha} \right)\]</div>
+<p>We can move the derivative inside the expectation and differentiate term by term:</p>
+<div class="math notranslate nohighlight">
+\[\frac{dL(U)}{dU(s)} = \mathbb{E}_{a \sim \mu} \left[ \frac{d}{dU(s)} (\max\{X, 0\})^2 \right] + \frac{d}{dU(s)} \left( \frac{U(s)}{\alpha} \right)\]</div>
+<p>With application of chain rule in the first term,
+$<span class="math notranslate nohighlight">\(
+\begin{align}
+&amp; = \left( 2 \cdot \frac{d}{dU(s)} \max\{X, 0\} \right) \\
+&amp; = 2 \cdot 1(X(\alpha,U)&gt;0) \cdot \frac{d}{dU(s)} X(\alpha,U)\\
+&amp; = 2 \cdot 1(X(\alpha,U)&gt;0) \cdot\left( -\frac{1}{2\alpha} \right)\\
+&amp; = 1(X(\alpha,U)&gt;0) \cdot\left( -\frac{1}{\alpha} \right)\\
+\end{align}
+\)</span>$</p>
+<p>Substitute the definition <span class="math notranslate nohighlight">\(X(U^*,\alpha)\)</span> back in and calculate the derivative of the second term
+\begin{align}
+&amp;=\mathbb E_{a\sim\mu} \left[-\frac{1}{\alpha}\max(\frac{1}{2} + \frac{Q^<em>(s,a) - U^</em>(s)}{2\alpha},0)\right] + \frac{1}{\alpha} = 0
+\end{align}</p>
+<p>Subtract <span class="math notranslate nohighlight">\(\frac{1}{\alpha}\)</span> from both sides and multiply by <span class="math notranslate nohighlight">\(\alpha\)</span> to get the probability constraint back</p>
+<div class="math notranslate nohighlight">
+\[\mathbb{E}_{a \sim \mu} \left[ \max\left\{ \frac{1}{2} + \frac{Q^*(s,a) - U^*(s)}{2\alpha}, 0 \right\} \right] = 1\]</div>
+</section>
+<section id="pi-is-not-computable-either">
+<h4><span class="math notranslate nohighlight">\(\pi^*\)</span> is not computable either<a class="headerlink" href="#pi-is-not-computable-either" title="Link to this heading">#</a></h4>
+<p>Similarly, <span class="math notranslate nohighlight">\(\pi*\)</span> cannot be computed using our closed form expression because we don’t have access to <span class="math notranslate nohighlight">\(\mu\)</span>. Instead, we can do simple BC, which minimizes forward <span class="math notranslate nohighlight">\(KL(\pi^*\|\pi)\)</span></p>
+<div class="math notranslate nohighlight">
+\[\begin{split}
+\begin{align}
+&amp; \min_\pi E_{a\sim\pi^*} \left[\frac{\log \pi^*(a|s)}{\log \pi(a|s)}\right] \\
+&amp; \equiv - \min_\pi E_{a\sim\pi^*} \left[\log \pi(a|s)\right] \\
+&amp; \equiv \max_\pi E_{a\sim\pi^*} \left[\log \pi(a|s)\right]\\
+&amp; \equiv \max_\pi \mathbb{E}_{a \sim \mu} \left[ \max\left\{ \frac{1}{2} + \frac{Q^*(s,a) - U^*(s)}{2\alpha}, 0 \right\}\log \pi(a|s)\right]
+\end{align}
+\end{split}\]</div>
+<p>which is exactly a weighted log-likelihood i.e weighted BC</p>
+<div class="proof algorithm admonition" id="alg:sparse-q-u-learning">
+<p class="admonition-title"><span class="caption-number">Algorithm 1 </span> (Sparse Q-Learning-U)</p>
+<section class="algorithm-content" id="proof-content">
+<p><strong>Require</strong> Dataset <span class="math notranslate nohighlight">\(\mathcal{D}\)</span>, regularization strength <span class="math notranslate nohighlight">\(\alpha\)</span></p>
+<p><strong>Initialize</strong> Networks <span class="math notranslate nohighlight">\(U_{\kappa}\)</span>, <span class="math notranslate nohighlight">\(V_{\psi}\)</span>, <span class="math notranslate nohighlight">\(\pi_{\theta}\)</span>, <span class="math notranslate nohighlight">\(Q_{\phi}\)</span>, and target network <span class="math notranslate nohighlight">\(Q_{\phi'}\)</span>.</p>
+<p>for <span class="math notranslate nohighlight">\(t = 1, 2, \dots, N\)</span> do:</p>
+<ol class="arabic simple">
+<li><p>Sample a mini-batch of <span class="math notranslate nohighlight">\(M\)</span> transitions <span class="math notranslate nohighlight">\(\mathcal B = \{(s_i, a_i, r_i, s'_i)\}_{i=1}^M \sim \mathcal{D}\)</span></p></li>
+<li><p><strong>Update V-Network (<span class="math notranslate nohighlight">\(V_\psi\)</span>):</strong></p>
+<ol class="arabic simple">
+<li><p>Compute target <span class="math notranslate nohighlight">\(y_{V,i}\)</span>, estimated with the single sample <span class="math notranslate nohighlight">\((s_i, a_i)\)</span>:
+<span class="math notranslate nohighlight">\(y_{V,i} = U_\kappa(s_i) + \alpha \left( \max\left\{ \frac{1}{2} + \frac{Q_{\phi'}(s_i,a_i) - U_\kappa(s_i)}{2\alpha}, 0 \right\} \right)^2\)</span></p></li>
+<li><p>Minimize MSE loss:
+<span class="math notranslate nohighlight">\(\mathcal{L}_V(\psi) = \frac{1}{M} \sum_{i=1}^M \left( V_\psi(s_i) - y_{V,i} \right)^2\)</span></p></li>
+</ol>
+</li>
+<li><p><strong>Update U-Network (<span class="math notranslate nohighlight">\(U_\kappa\)</span>):</strong> Minimize the objective
+<span class="math notranslate nohighlight">\(\mathcal{L}_U(\kappa) = \frac{1}{M} \sum_{i=1}^M \left[ \left(\max\left\{ \frac{1}{2} + \frac{Q_{\phi'}(s_i,a_i) - U_\kappa(s_i)}{2\alpha}, 0 \right\}\right)^2 + \frac{U_\kappa(s_i)}{\alpha} \right]\)</span></p></li>
+<li><p><strong>Update Q-Network (<span class="math notranslate nohighlight">\(Q_\phi\)</span>):</strong></p>
+<ol class="arabic simple">
+<li><p>Compute standard Bellman target using the V-network:
+<span class="math notranslate nohighlight">\(y_{Q,i} = r_i + \gamma V_\psi(s'_i)\)</span></p></li>
+<li><p>Minimize MSE loss:
+$<span class="math notranslate nohighlight">\(\mathcal{L}_Q(\phi) = \frac{1}{M} \sum_{i=1}^M \left( Q_\phi(s_i, a_i) - y_{Q,i} \right)^2\)</span>$</p></li>
+</ol>
+</li>
+<li><p><strong>Update Target Networks:</strong>
+<span class="math notranslate nohighlight">\(\phi' \leftarrow \lambda\phi + (1 - \lambda)\phi'\)</span></p></li>
+<li><p><strong>Update Policy Network (<span class="math notranslate nohighlight">\(\pi_\theta\)</span>) (Extraction):</strong></p>
+<ol class="arabic simple">
+<li><p>Calculate detached weights <span class="math notranslate nohighlight">\(w_i\)</span> for standard weighted regression (behavior cloning):
+<span class="math notranslate nohighlight">\(w_i = \max\left\{ \frac{1}{2} + \frac{Q_{\phi'}(s_i,a_i) - U_\kappa(s_i)}{2\alpha}, 0 \right\}\)</span></p></li>
+<li><p>Minimize negative weighted log-likelihood:
+<span class="math notranslate nohighlight">\(\mathcal{L}_\pi(\theta) = - \frac{1}{M} \sum_{i=1}^M w_i \log \pi_\theta(a_i|s_i)\)</span></p></li>
+</ol>
+</li>
+</ol>
+</section>
+</div></section>
+</section>
+</section>
+<section id="sql">
+<h2>SQL<a class="headerlink" href="#sql" title="Link to this heading">#</a></h2>
+<p>To eliminate the computation/storage of maintaining a U network, we notice the following. Since <span class="math notranslate nohighlight">\(\alpha\)</span>-divergence is mode-seeking, <span class="math notranslate nohighlight">\(\pi^*\)</span> will suffer a huge divergence penalty if it places any density <span class="math notranslate nohighlight">\(\mu\)</span> places none. This penalty is exactly the zero-forcing constraint where as a result, for actions <span class="math notranslate nohighlight">\(a\)</span> sampled under <span class="math notranslate nohighlight">\(\pi^*\)</span>, <span class="math notranslate nohighlight">\(\pi^*(a|s) \approx \mu(a|s)\)</span>.</p>
+<section id="v">
+<h3>V<a class="headerlink" href="#v" title="Link to this heading">#</a></h3>
+<div class="math notranslate nohighlight">
+\[\implies \mathbb E_{a* \sim \pi^*(\cdot|s)}\left[\frac{\pi^*(a|s)}{\mu(a|s)}\right] \approx 1\]</div>
+<p>In <span class="math notranslate nohighlight">\(V^*\)</span>, notice <span class="math notranslate nohighlight">\(\mathbb E_{a \sim \mu(\cdot|s)}\left[\left(\frac{\pi^*(a|s)}{\mu(a|s)}\right)^2\right] = E_{a* \sim \pi^*(\cdot|s)}[\frac{\pi^*(a|s)}{\mu(a|s)}]\)</span></p>
+<p>We substitute our approximation into this term to reveal,</p>
+<div class="math notranslate nohighlight">
+\[V^*(s) = U^*(s) + \alpha\]</div>
+<p>In <span class="math notranslate nohighlight">\(U\)</span>’s optimization problem, we replace <span class="math notranslate nohighlight">\(U\)</span> with <span class="math notranslate nohighlight">\(V\)</span> in both terms</p>
+<ol class="arabic simple">
+<li><p>The term with <span class="math notranslate nohighlight">\(U\)</span> in the expectation is
+$<span class="math notranslate nohighlight">\(  \frac{1}{2} + \frac{Q(s,a) - (V(s) - \alpha)}{2\alpha} = \frac{1}{2} + \frac{Q(s,a) - V(s) + \alpha}{2\alpha} = \frac{1}{2} + \frac{Q(s,a) - V(s)}{2\alpha} + \frac{1}{2}\)</span>$</p></li>
+<li><p>The added term is $<span class="math notranslate nohighlight">\(\frac{U(s)}{\alpha} = \frac{V(s)}{\alpha} - 1\)</span>$</p></li>
+</ol>
+<p>Putting it together, we obtain V’s optimization</p>
+<div class="math notranslate nohighlight">
+\[\min_V \mathbb{E} \left[ \left(\max\left\{ 1 + \frac{Q(s,a) - V(s)}{2\alpha}, 0 \right\}\right)^2 \right] + \mathbb{E}\left[\frac{V(s)}{\alpha} - 1\right]\]</div>
+</section>
+<section id="pi">
+<h3><span class="math notranslate nohighlight">\(\pi^*\)</span><a class="headerlink" href="#pi" title="Link to this heading">#</a></h3>
+<p>Plug the approximation <span class="math notranslate nohighlight">\(V*(s) = U*(s)+\alpha\)</span> into the max term in $pi^*</p>
+<div class="math notranslate nohighlight">
+\[\max\left\{ \frac{1}{2} + \frac{Q^*(s,a) - U^*(s)}{2\alpha}, 0 \right\} = \max\left\{ 1 + \frac{Q^*(s,a) - V^*(s)}{2\alpha}, 0 \right\} \]</div>
+<p>And follow the same derivation using forward KL</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}
+\begin{align}
+&amp;\equiv \max_\pi \mathbb{E}_{a \sim \pi^*(\cdot|s)} \left[\log\pi(a|s)\right]\\
+&amp;\equiv \max_\pi \mathbb{E}_{a \sim \mu} \left[ \max\left\{ 1 + \frac{Q(s,a) - V(s)}{2\alpha}, 0 \right\}\log \pi(a|s)\right]
+\end{align}
+\end{split}\]</div>
+<div class="proof algorithm admonition" id="alg:sparse-q-learning">
+<p class="admonition-title"><span class="caption-number">Algorithm 2 </span> (Sparse Q-Learning)</p>
+<section class="algorithm-content" id="proof-content">
+<p><strong>Require</strong> Dataset <span class="math notranslate nohighlight">\(\mathcal{D}\)</span>, regularization strength <span class="math notranslate nohighlight">\(\alpha\)</span></p>
+<p><strong>Initialize</strong> Networks <span class="math notranslate nohighlight">\(V_{\psi}\)</span>, <span class="math notranslate nohighlight">\(\pi_{\theta}\)</span>, <span class="math notranslate nohighlight">\(Q_{\phi}\)</span>, and target network <span class="math notranslate nohighlight">\(Q_{\phi'}\)</span>.</p>
+<p>for <span class="math notranslate nohighlight">\(t = 1, 2, \dots, N\)</span> do:</p>
+<ol class="arabic simple">
+<li><p>Sample a mini-batch of <span class="math notranslate nohighlight">\(M\)</span> transitions <span class="math notranslate nohighlight">\(\mathcal B = \{(s_i, a_i, r_i, s'_i)\}_{i=1}^M \sim \mathcal{D}\)</span></p></li>
+<li><p><strong>Update V-Network (<span class="math notranslate nohighlight">\(V_\psi\)</span>):</strong> Minimize the combined objective
+<span class="math notranslate nohighlight">\(\mathcal{L}_V(\psi) = \frac{1}{M} \sum_{i=1}^M \left[ \left(\max\left\{ 1 + \frac{Q_{\phi'}(s_i,a_i) - V_\psi(s_i)}{2\alpha}, 0 \right\}\right)^2 + \frac{V_\psi(s_i)}{\alpha} \right]\)</span></p></li>
+<li><p><strong>Update Q-Network (<span class="math notranslate nohighlight">\(Q_\phi\)</span>):</strong></p>
+<ol class="arabic simple">
+<li><p>Compute standard Bellman target using the V-network:
+<span class="math notranslate nohighlight">\(y_{Q,i} = r_i + \gamma V_\psi(s'_i)\)</span></p></li>
+<li><p>Minimize MSE loss:
+<span class="math notranslate nohighlight">\(\mathcal{L}_Q(\phi) = \frac{1}{M} \sum_{i=1}^M \left( Q_\phi(s_i, a_i) - y_{Q,i} \right)^2\)</span></p></li>
+</ol>
+</li>
+<li><p><strong>Update Target Networks:</strong>
+<span class="math notranslate nohighlight">\(\phi' \leftarrow \lambda\phi + (1 - \lambda)\phi'\)</span></p></li>
+<li><p><strong>Update Policy Network (<span class="math notranslate nohighlight">\(\pi_\theta\)</span>) (Extraction):</strong></p>
+<ol class="arabic simple">
+<li><p>Calculate detached weights <span class="math notranslate nohighlight">\(w_i\)</span> using the approximation <span class="math notranslate nohighlight">\(U(s) \approx V(s) - \alpha\)</span>:
+<span class="math notranslate nohighlight">\(w_i = \max\left\{ 1 + \frac{Q_{\phi'}(s_i,a_i) - V_\psi(s_i)}{2\alpha}, 0 \right\}\)</span></p></li>
+<li><p>Minimize negative weighted log-likelihood:
+<span class="math notranslate nohighlight">\(\mathcal{L}_\pi(\theta) = - \frac{1}{M} \sum_{i=1}^M w_i \log \pi_\theta(a_i|s_i)\)</span></p></li>
+</ol>
+</li>
+</ol>
+</section>
+</div></section>
 </section>
 </section>
 
@@ -548,7 +715,7 @@ $<span class="math notranslate nohighlight">\(f(x) = x-1 \implies f'(x) = 1\)</s
       </div>
     </a>
     <a class="right-next"
-       href="../2-diffusion-models/Score-Matching.html"
+       href="../2-diffusion-and-flow-models/Score-Matching.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
@@ -582,7 +749,19 @@ $<span class="math notranslate nohighlight">\(f(x) = x-1 \implies f'(x) = 1\)</s
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#theorem-1">Theorem 1</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#instantiating-a-practical-algorithm">Instantiating a practical algorithm</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sparse-q-learning">Sparse Q-Learning</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sparse-q-learning">Sparse Q-Learning</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sql-u">SQL-U</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#u-is-not-computable"><span class="math notranslate nohighlight">\(U*\)</span> is not computable</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pi-is-not-computable-either"><span class="math notranslate nohighlight">\(\pi^*\)</span> is not computable either</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sql">SQL</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#v">V</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pi"><span class="math notranslate nohighlight">\(\pi^*\)</span></a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 

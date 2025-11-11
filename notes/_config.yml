@@ -40,6 +40,8 @@ sphinx:
       default_mode: light
     html_theme_options:
       use_download_button: false
+  extra_extensions:
+    - sphinx_proof
 
 launch_buttons:
   colab_url: "https://colab.research.google.com"
