@@ -320,18 +320,25 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#theorem-1">Theorem 1</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#instantiating-a-practical-algorithm">Instantiating a practical algorithm</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sparse-q-learning">Sparse Q-Learning</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sql-u">SQL-U</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sql-u-derivation">SQL-U Derivation</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#u-is-not-computable"><span class="math notranslate nohighlight">\(U*\)</span> is not computable</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pi-is-not-computable-either"><span class="math notranslate nohighlight">\(\pi^*\)</span> is not computable either</a></li>
 </ul>
 </li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sparse-q-learning-derivation">Sparse Q-Learning Derivation</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#optimization-to-obtain-v">Optimization to obtain <span class="math notranslate nohighlight">\(V^*\)</span></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#optimization-to-obtain-pi">Optimization to obtain <span class="math notranslate nohighlight">\(\pi^*\)</span></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sql">SQL</a><ul class="nav section-nav flex-column">
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sql-algorithm">SQL Algorithm</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#exponential-q-learning">Exponential Q-Learning</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#v">V</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pi"><span class="math notranslate nohighlight">\(\pi^*\)</span></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#optimization-for-pi">Optimization for <span class="math notranslate nohighlight">\(\pi\)</span></a></li>
 </ul>
 </li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#eql-algorithm">EQL Algorithm</a></li>
 </ul>
             </nav>
         </div>
@@ -511,7 +518,7 @@ $<span class="math notranslate nohighlight">\(f(x) = x-1 \implies f'(x) = 1\)</s
 <div class="math notranslate nohighlight">
 \[\pi^*(a|s) = \mu(a|s) \cdot \max\left\{ \frac{1}{2} + \frac{Q^*(s,a) - U^*(s)}{2\alpha}, 0 \right\}\]</div>
 </li>
-<li><p>The optimal Lagrange multiplier <span class="math notranslate nohighlight">\(U^* (s)\)</span> is the unique value such that <span class="math notranslate nohighlight">\(\pi^* \)</span>  satisfies the normalization constraint <span class="math notranslate nohighlight">\(\sum_a \pi^* (a\|s) = 1\)</span></p>
+<li><p>The optimal Lagrange multiplier <span class="math notranslate nohighlight">\(U^* (s)\)</span> is the unique value such that <span class="math notranslate nohighlight">\(\pi^* \)</span>  satisfies the normalization constraint <span class="math notranslate nohighlight">\(\sum_a \pi^* (a|s) = 1\)</span></p>
 <div class="math notranslate nohighlight">
 \[\mathbb{E}_{a \sim \mu} \left[ \max\left\{ \frac{1}{2} + \frac{Q^*(s,a) - U^*(s)}{2\alpha}, 0 \right\} \right] = 1\]</div>
 </li>
@@ -520,8 +527,8 @@ $<span class="math notranslate nohighlight">\(f(x) = x-1 \implies f'(x) = 1\)</s
 \[V^*(s) = U^*(s) + \alpha \mathbb{E}_{a \sim \mu} \left[ \left(\frac{\pi^*(a|s)}{\mu(a|s)}\right)^2 \right]\]</div>
 </li>
 </ol>
-<section id="sql-u">
-<h3>SQL-U<a class="headerlink" href="#sql-u" title="Link to this heading">#</a></h3>
+<section id="sql-u-derivation">
+<h3>SQL-U Derivation<a class="headerlink" href="#sql-u-derivation" title="Link to this heading">#</a></h3>
 <section id="u-is-not-computable">
 <h4><span class="math notranslate nohighlight">\(U*\)</span> is not computable<a class="headerlink" href="#u-is-not-computable" title="Link to this heading">#</a></h4>
 <p>Unfortunately, <span class="math notranslate nohighlight">\(U^*(s)\)</span> is not tractable to compute from this expectation, so the authors come up with clever minimization problem where its solution <span class="math notranslate nohighlight">\(U^*\)</span> exactly satisfies this probability constraint.</p>
@@ -582,7 +589,7 @@ $<span class="math notranslate nohighlight">\(
 <span class="math notranslate nohighlight">\(\mathcal{L}_V(\psi) = \frac{1}{M} \sum_{i=1}^M \left( V_\psi(s_i) - y_{V,i} \right)^2\)</span></p></li>
 </ol>
 </li>
-<li><p><strong>Update U-Network (<span class="math notranslate nohighlight">\(U_\kappa\)</span>):</strong> Minimize the objective
+<li><p><strong>Update U-Network (<span class="math notranslate nohighlight">\(U_\kappa\)</span>):</strong>
 <span class="math notranslate nohighlight">\(\mathcal{L}_U(\kappa) = \frac{1}{M} \sum_{i=1}^M \left[ \left(\max\left\{ \frac{1}{2} + \frac{Q_{\phi'}(s_i,a_i) - U_\kappa(s_i)}{2\alpha}, 0 \right\}\right)^2 + \frac{U_\kappa(s_i)}{\alpha} \right]\)</span></p></li>
 <li><p><strong>Update Q-Network (<span class="math notranslate nohighlight">\(Q_\phi\)</span>):</strong></p>
 <ol class="arabic simple">
@@ -606,12 +613,11 @@ $<span class="math notranslate nohighlight">\(\mathcal{L}_Q(\phi) = \frac{1}{M} 
 </section>
 </div></section>
 </section>
-</section>
-<section id="sql">
-<h2>SQL<a class="headerlink" href="#sql" title="Link to this heading">#</a></h2>
+<section id="sparse-q-learning-derivation">
+<h3>Sparse Q-Learning Derivation<a class="headerlink" href="#sparse-q-learning-derivation" title="Link to this heading">#</a></h3>
 <p>To eliminate the computation/storage of maintaining a U network, we notice the following. Since <span class="math notranslate nohighlight">\(\alpha\)</span>-divergence is mode-seeking, <span class="math notranslate nohighlight">\(\pi^*\)</span> will suffer a huge divergence penalty if it places any density <span class="math notranslate nohighlight">\(\mu\)</span> places none. This penalty is exactly the zero-forcing constraint where as a result, for actions <span class="math notranslate nohighlight">\(a\)</span> sampled under <span class="math notranslate nohighlight">\(\pi^*\)</span>, <span class="math notranslate nohighlight">\(\pi^*(a|s) \approx \mu(a|s)\)</span>.</p>
-<section id="v">
-<h3>V<a class="headerlink" href="#v" title="Link to this heading">#</a></h3>
+<section id="optimization-to-obtain-v">
+<h4>Optimization to obtain <span class="math notranslate nohighlight">\(V^*\)</span><a class="headerlink" href="#optimization-to-obtain-v" title="Link to this heading">#</a></h4>
 <div class="math notranslate nohighlight">
 \[\implies \mathbb E_{a* \sim \pi^*(\cdot|s)}\left[\frac{\pi^*(a|s)}{\mu(a|s)}\right] \approx 1\]</div>
 <p>In <span class="math notranslate nohighlight">\(V^*\)</span>, notice <span class="math notranslate nohighlight">\(\mathbb E_{a \sim \mu(\cdot|s)}\left[\left(\frac{\pi^*(a|s)}{\mu(a|s)}\right)^2\right] = E_{a* \sim \pi^*(\cdot|s)}[\frac{\pi^*(a|s)}{\mu(a|s)}]\)</span></p>
@@ -620,16 +626,19 @@ $<span class="math notranslate nohighlight">\(\mathcal{L}_Q(\phi) = \frac{1}{M} 
 \[V^*(s) = U^*(s) + \alpha\]</div>
 <p>In <span class="math notranslate nohighlight">\(U\)</span>’s optimization problem, we replace <span class="math notranslate nohighlight">\(U\)</span> with <span class="math notranslate nohighlight">\(V\)</span> in both terms</p>
 <ol class="arabic simple">
-<li><p>The term with <span class="math notranslate nohighlight">\(U\)</span> in the expectation is
-$<span class="math notranslate nohighlight">\(  \frac{1}{2} + \frac{Q(s,a) - (V(s) - \alpha)}{2\alpha} = \frac{1}{2} + \frac{Q(s,a) - V(s) + \alpha}{2\alpha} = \frac{1}{2} + \frac{Q(s,a) - V(s)}{2\alpha} + \frac{1}{2}\)</span>$</p></li>
+<li><p>The term with <span class="math notranslate nohighlight">\(U\)</span> in the expectation is</p></li>
+</ol>
+<div class="math notranslate nohighlight">
+\[  \frac{1}{2} + \frac{Q(s,a) - (V(s) - \alpha)}{2\alpha} = \frac{1}{2} + \frac{Q(s,a) - V(s) + \alpha}{2\alpha} = \frac{1}{2} + \frac{Q(s,a) - V(s)}{2\alpha} + \frac{1}{2}\]</div>
+<ol class="arabic simple" start="2">
 <li><p>The added term is $<span class="math notranslate nohighlight">\(\frac{U(s)}{\alpha} = \frac{V(s)}{\alpha} - 1\)</span>$</p></li>
 </ol>
 <p>Putting it together, we obtain V’s optimization</p>
 <div class="math notranslate nohighlight">
 \[\min_V \mathbb{E} \left[ \left(\max\left\{ 1 + \frac{Q(s,a) - V(s)}{2\alpha}, 0 \right\}\right)^2 \right] + \mathbb{E}\left[\frac{V(s)}{\alpha} - 1\right]\]</div>
 </section>
-<section id="pi">
-<h3><span class="math notranslate nohighlight">\(\pi^*\)</span><a class="headerlink" href="#pi" title="Link to this heading">#</a></h3>
+<section id="optimization-to-obtain-pi">
+<h4>Optimization to obtain <span class="math notranslate nohighlight">\(\pi^*\)</span><a class="headerlink" href="#optimization-to-obtain-pi" title="Link to this heading">#</a></h4>
 <p>Plug the approximation <span class="math notranslate nohighlight">\(V*(s) = U*(s)+\alpha\)</span> into the max term in $pi^*</p>
 <div class="math notranslate nohighlight">
 \[\max\left\{ \frac{1}{2} + \frac{Q^*(s,a) - U^*(s)}{2\alpha}, 0 \right\} = \max\left\{ 1 + \frac{Q^*(s,a) - V^*(s)}{2\alpha}, 0 \right\} \]</div>
@@ -641,6 +650,11 @@ $<span class="math notranslate nohighlight">\(  \frac{1}{2} + \frac{Q(s,a) - (V(
 &amp;\equiv \max_\pi \mathbb{E}_{a \sim \mu} \left[ \max\left\{ 1 + \frac{Q(s,a) - V(s)}{2\alpha}, 0 \right\}\log \pi(a|s)\right]
 \end{align}
 \end{split}\]</div>
+</section>
+</section>
+</section>
+<section id="sql-algorithm">
+<h2>SQL Algorithm<a class="headerlink" href="#sql-algorithm" title="Link to this heading">#</a></h2>
 <div class="proof algorithm admonition" id="alg:sparse-q-learning">
 <p class="admonition-title"><span class="caption-number">Algorithm 2 </span> (Sparse Q-Learning)</p>
 <section class="algorithm-content" id="proof-content">
@@ -649,7 +663,7 @@ $<span class="math notranslate nohighlight">\(  \frac{1}{2} + \frac{Q(s,a) - (V(
 <p>for <span class="math notranslate nohighlight">\(t = 1, 2, \dots, N\)</span> do:</p>
 <ol class="arabic simple">
 <li><p>Sample a mini-batch of <span class="math notranslate nohighlight">\(M\)</span> transitions <span class="math notranslate nohighlight">\(\mathcal B = \{(s_i, a_i, r_i, s'_i)\}_{i=1}^M \sim \mathcal{D}\)</span></p></li>
-<li><p><strong>Update V-Network (<span class="math notranslate nohighlight">\(V_\psi\)</span>):</strong> Minimize the combined objective
+<li><p><strong>Update V-Network (<span class="math notranslate nohighlight">\(V_\psi\)</span>):</strong>
 <span class="math notranslate nohighlight">\(\mathcal{L}_V(\psi) = \frac{1}{M} \sum_{i=1}^M \left[ \left(\max\left\{ 1 + \frac{Q_{\phi'}(s_i,a_i) - V_\psi(s_i)}{2\alpha}, 0 \right\}\right)^2 + \frac{V_\psi(s_i)}{\alpha} \right]\)</span></p></li>
 <li><p><strong>Update Q-Network (<span class="math notranslate nohighlight">\(Q_\phi\)</span>):</strong></p>
 <ol class="arabic simple">
@@ -659,7 +673,7 @@ $<span class="math notranslate nohighlight">\(  \frac{1}{2} + \frac{Q(s,a) - (V(
 <span class="math notranslate nohighlight">\(\mathcal{L}_Q(\phi) = \frac{1}{M} \sum_{i=1}^M \left( Q_\phi(s_i, a_i) - y_{Q,i} \right)^2\)</span></p></li>
 </ol>
 </li>
-<li><p><strong>Update Target Networks:</strong>
+<li><p><strong>Update Target Network:</strong>
 <span class="math notranslate nohighlight">\(\phi' \leftarrow \lambda\phi + (1 - \lambda)\phi'\)</span></p></li>
 <li><p><strong>Update Policy Network (<span class="math notranslate nohighlight">\(\pi_\theta\)</span>) (Extraction):</strong></p>
 <ol class="arabic simple">
@@ -672,7 +686,109 @@ $<span class="math notranslate nohighlight">\(  \frac{1}{2} + \frac{Q(s,a) - (V(
 </ol>
 </section>
 </div></section>
+<section id="exponential-q-learning">
+<h2>Exponential Q-Learning<a class="headerlink" href="#exponential-q-learning" title="Link to this heading">#</a></h2>
+<p>Alternatively, as <span class="math notranslate nohighlight">\(\alpha \rightarrow 0\)</span>, <span class="math notranslate nohighlight">\(D_f\)</span> is Reverse KL, a mode-seeking divergence.</p>
+<div class="math notranslate nohighlight">
+\[f(x) = \log x \implies f'(x) = \frac{1}{x}\]</div>
+<p>And by definition:</p>
+<div class="math notranslate nohighlight">
+\[h'_f(x) = f(x) + xf'(x) = \log x + 1\]</div>
+<div class="math notranslate nohighlight">
+\[g_f(y) = \exp (x-1)\]</div>
+<p>With this we can define the relevant optimization objectives</p>
+<ol class="arabic">
+<li><p>Substitute <span class="math notranslate nohighlight">\(g_f(y)\)</span> into general policy form from Theorem 1:
+$<span class="math notranslate nohighlight">\(
+ \begin{align}
+     \pi^*(a|s) &amp;= \mu(a|s) \cdot \max\left\{ \exp\left( \frac{Q^*(s,a) - U^*(s)}{\alpha}-1\right), 0 \right\}\\
+     &amp;=\mu(a|s) \cdot \exp\left( \frac{Q^*(s,a) - U^*(s)}{\alpha}-1\right)
+ \end{align}
+\)</span>$</p></li>
+<li><p>Substitute the derivative <span class="math notranslate nohighlight">\(f'(x) = \frac{1}{x}\)</span> into general form for <span class="math notranslate nohighlight">\(V^*(s)\)</span> from Theorem 1:</p>
+<div class="math notranslate nohighlight">
+\[V^*(s) = U^*(s) + \alpha \mathbb{E}_{a \sim \mu} \left[ \left(\frac{\pi^*(a|s)}{\mu(a|s)}\right)^2 \frac{\mu(a|s)}{\pi^*(a|s)} \right]\]</div>
+</li>
+</ol>
+<p>In the above equation, we notice a very interesting fact that leads to a simple equation for <span class="math notranslate nohighlight">\(U^*\)</span></p>
+<div class="math notranslate nohighlight">
+\[\begin{split}
+\begin{align}
+    &amp; \mathbb{E}_{a \sim \mu} \left[ \left(\frac{\pi^*(a|s)}{\mu(a|s)}\right)^2 \frac{\mu(a|s)}{\pi^*(a|s)} \right] \\
+    &amp; = E_{a\sim\mu}\left[\frac{\pi(a|s)}{\mu(a|s)}\right] \\
+    &amp;= \sum_a \pi^* (a|s) \\
+    &amp;= 1 \\
+    &amp;\implies V^*(s) = U^*(s) + \alpha
+\end{align}
+\end{split}\]</div>
+<section id="v">
+<h3>V<a class="headerlink" href="#v" title="Link to this heading">#</a></h3>
+<p>This relationship <span class="math notranslate nohighlight">\(V^*(s) = U^*(s) + \alpha\)</span> also simplifies the form of <span class="math notranslate nohighlight">\(\pi^*\)</span>
+$<span class="math notranslate nohighlight">\(
+\begin{align}
+        \pi^*(a|s) &amp;= \mu(a|s) \cdot \exp\left( \frac{Q^*(s,a) - U^*(s)}{\alpha}-1\right)\\
+        &amp;=\mu(a|s) \cdot \exp\left( \frac{Q^*(s,a) - V^*(s)+\alpha}{\alpha}-1\right) \\
+        &amp;=\mu(a|s) \cdot \exp\left( \frac{Q^*(s,a) - V^*(s)}{\alpha}\right) \\
+\end{align}
+\)</span>$</p>
+<p>Unlike SQL, the dual variable <span class="math notranslate nohighlight">\(U^*\)</span> can be eliminated <em>without any approximation</em> by substituting <span class="math notranslate nohighlight">\(V^*(s)-\alpha\)</span></p>
+<p>Exactly as SQL, the Lagrange multiplier <span class="math notranslate nohighlight">\(U^* (s)\)</span> is the unique value such that <span class="math notranslate nohighlight">\(\pi^* \)</span>  satisfies the normalization constraint <span class="math notranslate nohighlight">\(\sum_a \pi^* (a|s) = 1\)</span></p>
+<div class="math notranslate nohighlight">
+\[\mathbb{E}_{a \sim \mu} \left[ \exp\left( \frac{Q^*(s,a) - V^*(s)}{\alpha}\right) \right] = 1\]</div>
+<p>We could solve this for <span class="math notranslate nohighlight">\(V*(s)\)</span> algebraically,</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}
+\begin{align}
+1=&amp;\exp\left(\frac{-V^*(s))}{\alpha}\right) \cdot \mathbb{E}_{a \sim \mu} \left[ \exp\left(\frac{Q(s,a))}{\alpha}\right) \right] \\
+\log(1)=&amp;log\left[\left(\frac{-V^*(s))}{\alpha}\right) \cdot \mathbb{E}_{a \sim \mu} \left[ \exp\left(\frac{Q(s,a))}{\alpha}\right) \right]\right]\\
+V^*(s)&amp;=\alpha\log\mathbb{E}_{a \sim \mu} \left[ \exp\left(\frac{Q(s,a))}{\alpha}\right) \right]
+\end{align}\\
+\end{split}\]</div>
+<p>Unfortunately, this poses a problem in estimating the expectation because it is unlikely our offline dataset contains more than 1 transition from a state in the continous state setting or more than a couple in the discrete state setting.</p>
+<p>Instead, The authors define another optimization whose solution <span class="math notranslate nohighlight">\(V^*\)</span> (where the gradient is zero) is the probability constraint.</p>
+<div class="math notranslate nohighlight">
+\[\min_V \mathbb{E}_{a \sim \mu} \left[ \exp\left(\frac{Q(s,a) - V(s)}{\alpha}\right) \right] + \frac{V(s)}{\alpha}\]</div>
 </section>
+<section id="optimization-for-pi">
+<h3>Optimization for <span class="math notranslate nohighlight">\(\pi\)</span><a class="headerlink" href="#optimization-for-pi" title="Link to this heading">#</a></h3>
+<p>We follow the same policy extraction procedure as SQL.</p>
+<div class="math notranslate nohighlight">
+\[\max_\pi E_{a\sim\pi^*}\left[\log\pi(a|s)\right]\equiv\max_\pi E_{a\sim\pi^*}\left[\mu(a|s) \cdot \exp\left( \frac{Q^*(s,a) - V^*(s)}{\alpha}\right)\log\pi(a|s)\right]\]</div>
+</section>
+</section>
+<section id="eql-algorithm">
+<h2>EQL Algorithm<a class="headerlink" href="#eql-algorithm" title="Link to this heading">#</a></h2>
+<div class="proof algorithm admonition" id="alg:exponential-q-learning">
+<p class="admonition-title"><span class="caption-number">Algorithm 3 </span> (Sparse Q-Learning)</p>
+<section class="algorithm-content" id="proof-content">
+<p><strong>Require</strong> Dataset <span class="math notranslate nohighlight">\(\mathcal{D}\)</span>, regularization strength <span class="math notranslate nohighlight">\(\alpha\)</span></p>
+<p><strong>Initialize</strong> Networks <span class="math notranslate nohighlight">\(V_{\psi}\)</span>, <span class="math notranslate nohighlight">\(\pi_{\theta}\)</span>, <span class="math notranslate nohighlight">\(Q_{\phi}\)</span>, and target network <span class="math notranslate nohighlight">\(Q_{\phi'}\)</span>.</p>
+<p>For <span class="math notranslate nohighlight">\(t = 1, 2, \dots, N\)</span> do:</p>
+<ol class="arabic simple">
+<li><p>Sample a mini-batch of <span class="math notranslate nohighlight">\(M\)</span> transitions <span class="math notranslate nohighlight">\(\mathcal B = \{(s_i, a_i, r_i, s'_i)\}_{i=1}^M \sim \mathcal{D}\)</span></p></li>
+<li><p><strong>Update V-Network (<span class="math notranslate nohighlight">\(V_\psi\)</span>):</strong>
+<span class="math notranslate nohighlight">\(\mathcal{L}_V(\psi) = \frac{1}{M} \sum_{i=1}^M \left[ \exp\left(\frac{Q_{\phi'}(s_i,a_i) - V_\psi(s_i)}{\alpha}\right) + \frac{V_\psi(s_i)}{\alpha} \right]\)</span></p></li>
+<li><p><strong>Update Q-Network (<span class="math notranslate nohighlight">\(Q_\phi\)</span>):</strong></p>
+<ol class="arabic simple">
+<li><p>Compute standard Bellman target using the V-network:
+<span class="math notranslate nohighlight">\(y_{Q,i} = r_i + \gamma V_\psi(s'_i)\)</span></p></li>
+<li><p>Minimize MSE loss:
+<span class="math notranslate nohighlight">\(\mathcal{L}_Q(\phi) = \frac{1}{M} \sum_{i=1}^M \left( Q_\phi(s_i, a_i) - y_{Q,i} \right)^2\)</span></p></li>
+</ol>
+</li>
+<li><p><strong>Update Target Network:</strong>
+<span class="math notranslate nohighlight">\(\phi' \leftarrow \lambda\phi + (1 - \lambda)\phi'\)</span></p></li>
+<li><p><strong>Update Policy Network (<span class="math notranslate nohighlight">\(\pi_\theta\)</span>) (Extraction):</strong></p>
+<ol class="arabic simple">
+<li><p>Calculate detached exponential weights (derived from the transformed distillation objective):
+<span class="math notranslate nohighlight">\(w_i = \exp\left(\frac{Q_{\phi'}(s_i,a_i) - V_\psi(s_i)}{\alpha}\right)\)</span></p></li>
+<li><p>Minimize negative weighted log-likelihood:
+<span class="math notranslate nohighlight">\(\mathcal{L}_\pi(\theta) = - \frac{1}{M} \sum_{i=1}^M w_i \log \pi_\theta(a_i|s_i)\)</span></p></li>
+</ol>
+</li>
+</ol>
+</section>
+</div></section>
 </section>
 
     <script type="text/x-thebe-config">
@@ -750,18 +866,25 @@ $<span class="math notranslate nohighlight">\(  \frac{1}{2} + \frac{Q(s,a) - (V(
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#theorem-1">Theorem 1</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#instantiating-a-practical-algorithm">Instantiating a practical algorithm</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sparse-q-learning">Sparse Q-Learning</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sql-u">SQL-U</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sql-u-derivation">SQL-U Derivation</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#u-is-not-computable"><span class="math notranslate nohighlight">\(U*\)</span> is not computable</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pi-is-not-computable-either"><span class="math notranslate nohighlight">\(\pi^*\)</span> is not computable either</a></li>
 </ul>
 </li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sparse-q-learning-derivation">Sparse Q-Learning Derivation</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#optimization-to-obtain-v">Optimization to obtain <span class="math notranslate nohighlight">\(V^*\)</span></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#optimization-to-obtain-pi">Optimization to obtain <span class="math notranslate nohighlight">\(\pi^*\)</span></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sql">SQL</a><ul class="nav section-nav flex-column">
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sql-algorithm">SQL Algorithm</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#exponential-q-learning">Exponential Q-Learning</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#v">V</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pi"><span class="math notranslate nohighlight">\(\pi^*\)</span></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#optimization-for-pi">Optimization for <span class="math notranslate nohighlight">\(\pi\)</span></a></li>
 </ul>
 </li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#eql-algorithm">EQL Algorithm</a></li>
 </ul>
   </nav></div>
 
