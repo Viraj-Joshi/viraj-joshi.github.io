@@ -745,7 +745,7 @@ V^*(s)&amp;=\alpha\log\mathbb{E}_{a \sim \mu} \left[ \exp\left(\frac{Q(s,a))}{\a
 \end{align}\\
 \end{split}\]</div>
 <p>Unfortunately, this poses a problem in estimating the expectation because it is unlikely our offline dataset contains more than 1 transition from a state in the continous state setting or more than a couple in the discrete state setting.</p>
-<p>Instead, the authors define another optimization whose solution <span class="math notranslate nohighlight">\(V^*\)</span> (where the gradient is zero) when plugged into <span class="math notranslate nohighlight">\(\pi*\)</span> makes <span class="math notranslate nohighlight">\(\pi^*\)</span> satisfy the probability constraint.</p>
+<p>Instead, the authors define a similar optimization to <span class="math notranslate nohighlight">\(U\)</span> in <span class="math notranslate nohighlight">\(SQL\)</span>, but in this case, whose solution <span class="math notranslate nohighlight">\(V^*\)</span> (where the gradient is zero) will ensure we satisfy the probability constraint. Take the gradient yourself and set to 0 to see it is exactly the probability constraint.</p>
 <div class="math notranslate nohighlight">
 \[\min_V \mathbb{E}_{a \sim \mu} \left[ \exp\left(\frac{Q(s,a) - V(s)}{\alpha}\right) \right] + \frac{V(s)}{\alpha}\]</div>
 </section>
