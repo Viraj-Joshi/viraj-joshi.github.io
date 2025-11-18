@@ -338,6 +338,7 @@ document.write(`
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#loss-function-derivative">Loss Function Derivative</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#putting-together-the-chain-rule">Putting together the chain rule</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#citations">Citations</a></li>
@@ -356,17 +357,19 @@ document.write(`
 <h1>Building up to Multinomial Logistic Regression<a class="headerlink" href="#building-up-to-multinomial-logistic-regression" title="Link to this heading">#</a></h1>
 <section id="perceptron">
 <h2>Perceptron<a class="headerlink" href="#perceptron" title="Link to this heading">#</a></h2>
-<p>The Perceptron is simply a linear classifier. It does classification using a linear combination of the features <span class="math notranslate nohighlight">\(f(\mathbf x)\)</span> with our weights <span class="math notranslate nohighlight">\(\mathbf w\)</span>, which is the activation <span class="math notranslate nohighlight">\(h_\mathbf w(\mathbf x)\)</span>. The most basic perceptron is a binary classifier, which uses the sign of the activation as the class.</p>
-<p>\begin{equation}
-\text{classify}(\mathbf x) =
-\left{
-\begin{array}{lr}
-+1, &amp; \text{if } h_\mathbf w(\mathbf x) = \mathbf w^T f(\mathbf x) &gt; 0\
--1, &amp; \text{if } h_\mathbf w(\mathbf x) = \mathbf w^T f(\mathbf x) &lt; 0
-\end{array}
-\right}
-\end{equation}</p>
-<p>If the data are linearly separable, perceptron is guaranteed to converge.</p>
+<p>The Perceptron is simply a linear classifier. It does classification using a linear combination of the features <span class="math notranslate nohighlight">\(f(\mathbf x)\)</span> with our weights <span class="math notranslate nohighlight">\(\mathbf w\)</span>, which is the activation <span class="math notranslate nohighlight">\(h_\mathbf w(\mathbf x)\)</span>. The most basic perceptron is a binary classifier, which uses the sign of the activation as the class.
+$<span class="math notranslate nohighlight">\(
+\begin{equation}
+\text{classify}(\mathbf x) = 
+\left\{
+    \begin{array}{lr}
+        +1, &amp; \text{if } h_\mathbf w(\mathbf x) = \mathbf w^T f(\mathbf x) &gt; 0\\
+        -1, &amp; \text{if } h_\mathbf w(\mathbf x) = \mathbf w^T f(\mathbf x) &lt; 0
+    \end{array}
+\right\}
+\end{equation}
+\)</span>$
+If the data are linearly separable, perceptron is guaranteed to converge.</p>
 <p>In order to find a decision boundary that does not go through the origin (which may be necessary for some problems), we will modify our feature and weights to add a bias term: add a feature to your sample feature vectors that is always 1, and add an extra weight for this feature to your weight vector. Doing so essentially
 allows us to produce a decision boundary representable by <span class="math notranslate nohighlight">\(\mathbf w^T f(\mathbf x) + b  = 0\)</span> where <span class="math notranslate nohighlight">\(b\)</span> is the weighted bias
 term (i.e. 1 * the last weight in the weight vector).</p>
@@ -377,10 +380,12 @@ term (i.e. 1 * the last weight in the weight vector).</p>
 <ol class="arabic simple">
 <li><p><span class="math notranslate nohighlight">\(y_{pred} = y_i\)</span> means do nothing to <span class="math notranslate nohighlight">\(\mathbf w\)</span></p></li>
 <li><p><span class="math notranslate nohighlight">\(y_{pred} = 1\)</span> but <span class="math notranslate nohighlight">\(y_i = -1\)</span>: In other words, the activation is too small. How we adjust w should strive to fix that and make the activation larger for that training sample. We can easily convince ourself that our update rule that adds <span class="math notranslate nohighlight">\(f(\mathbf x)\)</span> does increase the activation:
-$<span class="math notranslate nohighlight">\(h_{\mathbf w + f(\mathbf w)}(\mathbf x) = (\mathbf w + f(\mathbf x))^T f(\mathbf x) = \mathbf w^T f(\mathbf x) + f(\mathbf x)^T f(\mathbf x)\)</span><span class="math notranslate nohighlight">\(
+$<span class="math notranslate nohighlight">\(
+h_{\mathbf w + f(\mathbf w)}(\mathbf x) = (\mathbf w + f(\mathbf x))^T f(\mathbf x) = \mathbf w^T f(\mathbf x) + f(\mathbf x)^T f(\mathbf x)\)</span><span class="math notranslate nohighlight">\( 
 The update rule adds \)</span>f(\mathbf x)^T f(\mathbf x)$, which is always positive. The activation of that sample is getting larger and more positive.</p></li>
 <li><p><span class="math notranslate nohighlight">\(y_{pred} = -1\)</span> but <span class="math notranslate nohighlight">\(y_i = 1\)</span>: In other words, the activation is too big. Following the logic of 2), we see that our update rule must decrease the activation for that sample.
-$<span class="math notranslate nohighlight">\(h_{\mathbf w - f(\mathbf w)}(\mathbf x) = (\mathbf w - f(\mathbf x))^T f(\mathbf x) = \mathbf w^T f(\mathbf x) - f(\mathbf x)^T f(\mathbf x)\)</span><span class="math notranslate nohighlight">\(
+$<span class="math notranslate nohighlight">\(h_{\mathbf w - f(\mathbf w)}(\mathbf x) = (\mathbf w - f(\mathbf x))^T f(\mathbf x) = \mathbf w^T f(\mathbf x) - f(\mathbf x)^T f(\mathbf x)
+\)</span><span class="math notranslate nohighlight">\(
 which it does because it subtracts \)</span>f(\mathbf x)^T f(\mathbf x)$, which is always positive.</p></li>
 </ol>
 <p>The summary of the update is that you add <span class="math notranslate nohighlight">\(f(\mathbf x)\)</span> when
@@ -395,17 +400,20 @@ which it does because it subtracts \)</span>f(\mathbf x)^T f(\mathbf x)$, which 
 \[h_\mathbf w(\mathbf x) = \mathbf \sigma(\mathbf w^T f(\mathbf x))\]</div>
 <p>using the logistic function <span class="math notranslate nohighlight">\(\sigma(z) = \frac{1}{1+e^{-z}}\)</span></p>
 <p>The posterior is
+$<span class="math notranslate nohighlight">\(
 \begin{equation}
-P(y|\mathbf x) =
-\left{
-\begin{array}{lr}
-h_\mathbf w(\mathbf x), &amp; \text{if } y=1\
-1-h_\mathbf w(\mathbf x), &amp; \text{if } y=0
-\end{array}
-\right}
-\end{equation}</p>
-<p>A more compact way of writing the piecewise function is
-$<span class="math notranslate nohighlight">\(P(y|\mathbf x) = h_\mathbf w(\mathbf x)^y\cdot(1-h_\mathbf w(\mathbf x))^{(1-y)}\)</span>$</p>
+P(y|\mathbf x) = 
+\left\{
+    \begin{array}{lr}
+        h_\mathbf w(\mathbf x), &amp; \text{if } y=1\\
+        1-h_\mathbf w(\mathbf x), &amp; \text{if } y=0
+    \end{array}
+\right\}
+\end{equation}
+\)</span>$</p>
+<p>A more compact way of writing the piecewise function is</p>
+<div class="math notranslate nohighlight">
+\[P(y|\mathbf x) = h_\mathbf w(\mathbf x)^y\cdot(1-h_\mathbf w(\mathbf x))^{(1-y)}\]</div>
 <p>If <span class="math notranslate nohighlight">\(P(y|\mathbf x) &gt; .5\)</span> (or equivalently <span class="math notranslate nohighlight">\(\mathbf w^T f(\mathbf x) &gt; 0\)</span>), we classify <span class="math notranslate nohighlight">\(\mathbf x\)</span> as 1 and 0 otherwise.</p>
 <section id="loss-function">
 <h3>Loss Function<a class="headerlink" href="#loss-function" title="Link to this heading">#</a></h3>
@@ -497,45 +505,57 @@ i.e</p>
 \[P(y|\mathbf x) = \sigma(y\mathbf w^T \mathbf x)\]</div>
 <p>because <span class="math notranslate nohighlight">\(P(y=-1|\mathbf x)=\sigma(-\mathbf w^T f(\mathbf x))=\frac{1}{1+e^{\mathbf w^T f(x)}}\)</span> and <span class="math notranslate nohighlight">\(P(y=+1|\mathbf x)=\sigma(\mathbf w^T f(\mathbf x))=\frac{1}{1+e^{-\mathbf w^T f(x)}}\)</span></p>
 <p>Equivalently, the sigmoid can be written as
+$<span class="math notranslate nohighlight">\(
 \begin{equation}
-\mathcal P(y|x) =
-\left{
-\begin{array}{lr}
-\frac{e^{\mathbf w^T f(\mathbf x)}}{1+e^{\mathbf w^T f(\mathbf x)}} &amp; \text{if } y=+1\
-\frac{1}{1+e^{\mathbf w^T f(\mathbf x)}} &amp; \text{if } y=-1
-\end{array}
-\right}
-\end{equation}</p>
-<p>Following the same steps to derive the MLE for <span class="math notranslate nohighlight">\(\mathbf w\)</span> as before:</p>
-<p>\begin{split}
-\max_{\mathbf w}\prod\limits_{i}P(y_i|x_i)&amp;\equiv\max_{\mathbf w}\log\bigg(\prod_i P(y_i|\mathbf x_i) \bigg) \
-&amp; =\max_{\mathbf w}\sum_{i} \log P(y_i|x_i)\
-&amp;= \max_{\mathbf w} \sum_{i} -\log (1+e^{-y_i\mathbf w^T f(\mathbf x_i)})\
-\end{split}</p>
+\mathcal P(y|x) = 
+\left\{
+    \begin{array}{lr}
+        \frac{e^{\mathbf w^T f(\mathbf x)}}{1+e^{\mathbf w^T f(\mathbf x)}} &amp; \text{if } y=+1\\
+        \frac{1}{1+e^{\mathbf w^T f(\mathbf x)}} &amp; \text{if } y=-1
+    \end{array}
+\right\}
+\end{equation}
+\)</span>$</p>
+<p>Following the same steps to derive the MLE for <span class="math notranslate nohighlight">\(\mathbf w\)</span> as before:
+$<span class="math notranslate nohighlight">\(
+ \begin{split}
+\max_{\mathbf w}\prod\limits_{i}P(y_i|x_i)&amp;\equiv\max_{\mathbf w}\log\bigg(\prod_i P(y_i|\mathbf x_i) \bigg) \\
+&amp; =\max_{\mathbf w}\sum_{i} \log P(y_i|x_i)\\
+&amp;= \max_{\mathbf w} \sum_{i} -\log (1+e^{-y_i\mathbf w^T f(\mathbf x_i)})\\
+\end{split}
+\)</span>$</p>
 <!-- \begin{split}
 \max_{\mathbf w}\prod\limits_{i}P(y_i|x_i)&\equiv\max_{\mathbf w}\log\bigg(\prod_i P(y_i|\mathbf x_i) \bigg) \\
 & =\max_{\mathbf w}\sum_{i} \log P(y_i|x_i)\\
 &= \max_{\mathbf w} \sum_{i} \frac{1}{2} (1+y_i) \mathbf w^T f(\mathbf x_i) - \log (1+e^{\mathbf w^T f(\mathbf x_i)})\\
 \end{split} -->
-<p>Because we minimize loss functions, we minimize the negative of this objective to obtain:</p>
-<p>\begin{split}
-\mathcal L (\mathcal D,\mathbf w)
-&amp;= \min_{\mathbf w} \sum_{i} \log (1+e^{-y_i\mathbf w^T f(\mathbf x_i)}) \
+<p>Because we minimize loss functions, we minimize the negative of this objective to obtain:
+$<span class="math notranslate nohighlight">\(
+\begin{split}
+\mathcal L (\mathcal D,\mathbf w) 
+&amp;= \min_{\mathbf w} \sum_{i} \log (1+e^{-y_i\mathbf w^T f(\mathbf x_i)}) \\
 &amp;=\min_{\mathbf w} \sum_i - y_i\mathbf w^T f(\mathbf x_i) + \log \big(1+e^{y_i\mathbf w^T f(\mathbf x_i)}\big)
-\end{split}</p>
+\end{split}
+\)</span>$</p>
 <section id="gradient-of-logistic-regression-loss">
 <h4>Gradient of Logistic Regression loss<a class="headerlink" href="#gradient-of-logistic-regression-loss" title="Link to this heading">#</a></h4>
-<p>\begin{split}
-\nabla_{\mathbf w} \bigg[\sum_i \log (1+e^{-y_i\mathbf w^T f(\mathbf x)})\bigg]
-&amp; = \nabla_{\mathbf w} \bigg[\sum_i - y_i\mathbf w^T f(\mathbf x_i) + \log \big(1+e^{y_i\mathbf w^T f(\mathbf x_i)}\big)\bigg] \
-&amp; = \sum_i -y_i f(\mathbf x_i) + \frac{e^{y_i\mathbf w^T f(\mathbf x_i)}}{1+e^{y_i\mathbf w^T f(\mathbf x_i)}} y_if(\mathbf x_i)\
-&amp; = \sum_i f(\mathbf x_i)y_i (-1 + P(Y=+1|\mathbf x_i))\
-\end{split}</p>
-<p>\begin{split}
-\nabla_{\mathbf w} \bigg[\sum_{i} \frac{1}{2} (1+y_i) \mathbf w^T f(\mathbf x_i) - \log (1+e^{\mathbf w^T f(\mathbf x_i)})\bigg]
-&amp; = \sum_i \frac{1}{2} (1+y_i) f(\mathbf x_i) - \frac{e^{\mathbf w^T f(\mathbf x_i)}}{1+e^{\mathbf w^T f(\mathbf x_i)}} f(\mathbf x_i)\
-&amp; = \sum_i \bigg(\frac{1}{2}(1+y_i) - P(Y=+1|\mathbf x)\bigg) f(\mathbf x_i)\
-\end{split}</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}
+\begin{split}
+\nabla_{\mathbf w} \bigg[\sum_i \log (1+e^{-y_i\mathbf w^T f(\mathbf x)})\bigg] 
+&amp; = \nabla_{\mathbf w} \bigg[\sum_i - y_i\mathbf w^T f(\mathbf x_i) + \log \big(1+e^{y_i\mathbf w^T f(\mathbf x_i)}\big)\bigg] \\
+&amp; = \sum_i -y_i f(\mathbf x_i) + \frac{e^{y_i\mathbf w^T f(\mathbf x_i)}}{1+e^{y_i\mathbf w^T f(\mathbf x_i)}} y_if(\mathbf x_i)\\
+&amp; = \sum_i f(\mathbf x_i)y_i (-1 + P(Y=+1|\mathbf x_i))\\
+\end{split} 
+\end{split}\]</div>
+<div class="math notranslate nohighlight">
+\[\begin{split}
+\begin{split}
+\nabla_{\mathbf w} \bigg[\sum_{i} \frac{1}{2} (1+y_i) \mathbf w^T f(\mathbf x_i) - \log (1+e^{\mathbf w^T f(\mathbf x_i)})\bigg] 
+&amp; = \sum_i \frac{1}{2} (1+y_i) f(\mathbf x_i) - \frac{e^{\mathbf w^T f(\mathbf x_i)}}{1+e^{\mathbf w^T f(\mathbf x_i)}} f(\mathbf x_i)\\
+&amp; = \sum_i \bigg(\frac{1}{2}(1+y_i) - P(Y=+1|\mathbf x)\bigg) f(\mathbf x_i)\\
+\end{split}
+\end{split}\]</div>
 <p>Using gradient descent to minimize, the update rule is
 $<span class="math notranslate nohighlight">\(\mathbf w \leftarrow \mathbf w + \alpha \sum_i \big( 1 - P(Y=+1|\mathbf x)\big) y_if(\mathbf x_i)\)</span>$</p>
 <ul class="simple">
@@ -598,25 +618,27 @@ to <span class="math notranslate nohighlight">\(y_{i}\)</span> and subtract the 
 <section id="one-hot-encoding">
 <h3>One-hot Encoding<a class="headerlink" href="#one-hot-encoding" title="Link to this heading">#</a></h3>
 <p>Again, in order to use vector notation, we one-hot encode the class label.</p>
-<p>E.g If we have the following training labels <span class="math notranslate nohighlight">\(y\)</span> with 4 classes, the one hot encoding is</p>
-<p>\begin{equation*}
+<p>E.g If we have the following training labels <span class="math notranslate nohighlight">\(y\)</span> with 4 classes, the one hot encoding is
+$<span class="math notranslate nohighlight">\(
+\begin{equation*}
 \begin{pmatrix}
-0 \
-1 \
-3 \
-2 \
-0 \
+0 \\
+1 \\
+3 \\
+2 \\
+0 \\
 \end{pmatrix}
 \rightarrow
 \begin{pmatrix}
-1 &amp; 0 &amp; 0 &amp; 0 \
-0 &amp; 1 &amp; 0 &amp; 0 \
-0 &amp; 0 &amp; 0 &amp; 1 \
-0 &amp; 0 &amp; 1 &amp; 0 \
-1 &amp; 0 &amp; 0 &amp; 0 \
+1 &amp; 0 &amp; 0 &amp; 0 \\
+0 &amp; 1 &amp; 0 &amp; 0 \\
+0 &amp; 0 &amp; 0 &amp; 1 \\
+0 &amp; 0 &amp; 1 &amp; 0 \\
+1 &amp; 0 &amp; 0 &amp; 0 \\
 \end{pmatrix}
-\end{equation*}</p>
-<p>where each row of the one hot encoding matrix represents the <span class="math notranslate nohighlight">\(i\)</span>th label of <span class="math notranslate nohighlight">\(y\)</span></p>
+\end{equation*}
+\)</span><span class="math notranslate nohighlight">\(
+where each row of the one hot encoding matrix represents the \)</span>i<span class="math notranslate nohighlight">\(th label of \)</span>y$</p>
 </section>
 <section id="cross-entropy">
 <h3>Cross Entropy<a class="headerlink" href="#cross-entropy" title="Link to this heading">#</a></h3>
@@ -658,141 +680,154 @@ In PyTorch, cross entropy takes logits as input and returns the mean over the CE
 <p>Assume we have one example to make notation cleaner.</p>
 <div class="math notranslate nohighlight">
 \[\mathcal{L} (W)= -\sum_{j=1}^h (y*\log \underbrace{\text{softmax}(\underbrace{xW}_{z}}_{a}))_j \]</div>
-<p>The loss simply sums the row vector.</p>
-<p>We can build up to the full gradient <span class="math notranslate nohighlight">\(\frac{\partial\mathcal{L}}{\partial W}\)</span>, by examining the chain rule of an easier part ,<span class="math notranslate nohighlight">\(\frac{\partial \mathcal{L}}{\partial z}\)</span>,the derivative of a scalar w.r.t logits vector <span class="math notranslate nohighlight">\(z\)</span></p>
+<p>The loss simply sums the row vector because <span class="math notranslate nohighlight">\(y,x,z\)</span> and <span class="math notranslate nohighlight">\(a\)</span> are all row vectors</p>
+<p>We can build up to the full gradient <span class="math notranslate nohighlight">\(\frac{\partial\mathcal{L}}{\partial W}\)</span>, by examining its entries <span class="math notranslate nohighlight">\(\frac{\partial\mathcal{L}}{\partial W_{ij}}\)</span></p>
+<div class="math notranslate nohighlight">
+\[\begin{aligned}
+\frac{\partial \mathcal{L}}{\partial W_{ij}} &amp;= \frac{\partial \mathcal{L}}{\partial z_i} \cdot \frac{\partial z_i}{\partial W_{ij}}
+\end{aligned}\]</div>
+<p>Lets examine the first term ,<span class="math notranslate nohighlight">\(\frac{\partial \mathcal{L}}{\partial z_i}\)</span>,the derivative of a scalar w.r.t an entry of a logits vector <span class="math notranslate nohighlight">\(z\)</span>. It is a bit tricky because we have to consider that perturbing <span class="math notranslate nohighlight">\(z_i\)</span> will effect ALL other probabilties due to the denominator in softmax, so we sum the effect</p>
 <div class="math notranslate nohighlight">
 \[\frac{\partial \mathcal{L}}{\partial z_i} = \sum_{j=1}^h \frac{\partial \mathcal{L}}{\partial a_j} \frac{\partial a_j}{\partial z_i}\]</div>
 <p>We can also bundle the bias into the weight vector as a column to avoid deriving an expression for <span class="math notranslate nohighlight">\(\frac{\partial\mathcal{L}}{\partial b}\)</span></p>
 <hr class="docutils" />
 <p>The first part of our expression, <span class="math notranslate nohighlight">\(\frac{\partial\mathcal{L}}{\partial a}\)</span>, is taking a derivative of a scalar w.r.t a vector <span class="math notranslate nohighlight">\(a\)</span>.</p>
-<p>Each entry of that gradient is</p>
-<p>\begin{equation}
+<p>Each entry of that gradient is
+$<span class="math notranslate nohighlight">\(
+\begin{equation}
 \begin{split}
 \frac{\partial\mathcal{L}}{\partial a_i} &amp; = \frac{\partial}{\partial a_i}
-\left[\sum_{j=1}^h -y_j \log a_j\right]\
-&amp; = \frac{\partial}{\partial a_i}[-y_i \log a_i] \
+\left[\sum_{j=1}^h -y_j \log a_j\right]\\
+&amp; = \frac{\partial}{\partial a_i}[-y_i \log a_i] \\
 &amp; = -y_i/a_i
 \end{split}
-\end{equation}</p>
+\end{equation}
+\)</span>$</p>
 <hr class="docutils" />
 <p>The second part of our expression, <span class="math notranslate nohighlight">\(\frac{\partial a}{\partial z}\)</span>, is taking the derivative of a vector w.r.t another vector. This is a matrix.
 When one takes the derivative of <span class="math notranslate nohighlight">\(a_i\)</span> with its corresponding entry <span class="math notranslate nohighlight">\(z_i\)</span>
+$<span class="math notranslate nohighlight">\(
 \begin{equation}
 \begin{split}
 \frac{\partial\mathcal{a_i}}{\partial z_i} &amp; = \frac{\partial}{\partial z_i}
-\left[\frac{e^{z_i}}{\sum_{j=1}^h e^{z_j}}\right]\
-&amp; =
-\left[\frac{(\sum_{j=1}^h e^{z_j}) \frac{\partial}{\partial z_i}e^{z_i}-e^{z_i} \frac{\partial}{\partial z_i}\sum_{j=1}^h e^{z_j}}{(\sum_{j=1}^h e^{z_j})^2}\right]\
-&amp; =
-\left[\frac{(\sum_{j=1}^h e^{z_j}) e^{z_i} - e^{z_i}e^{z_i}}{(\sum_{j=1}^h e^{z_j})^2}\right] \
-&amp; = \frac{e^{z_i}(\left[\sum_{j=1}^h e^{z_j}\right]-e^{z_i})}{(\sum_{j=1}^h e^{z_j})^2} \
+\left[\frac{e^{z_i}}{\sum_{j=1}^h e^{z_j}}\right]\\
+&amp; = 
+\left[\frac{(\sum_{j=1}^h e^{z_j}) \frac{\partial}{\partial z_i}e^{z_i}-e^{z_i} \frac{\partial}{\partial z_i}\sum_{j=1}^h e^{z_j}}{(\sum_{j=1}^h e^{z_j})^2}\right]\\
+&amp; = 
+\left[\frac{(\sum_{j=1}^h e^{z_j}) e^{z_i} - e^{z_i}e^{z_i}}{(\sum_{j=1}^h e^{z_j})^2}\right] \\
+&amp; = \frac{e^{z_i}(\left[\sum_{j=1}^h e^{z_j}\right]-e^{z_i})}{(\sum_{j=1}^h e^{z_j})^2} \\
 &amp; = \frac{e^{z_i}}{\sum_{j=1}^h e^{z_j}}\cdot
-\frac{\left[\sum_{j=1}^h e^{z_j}\right]-e^{z_i}}{\sum_{j=1}^h e^{z_j}}\
-&amp; = a_i (1-a_i)\
+\frac{\left[\sum_{j=1}^h e^{z_j}\right]-e^{z_i}}{\sum_{j=1}^h e^{z_j}}\\
+&amp; = a_i (1-a_i)\\
 \end{split}
-\end{equation}</p>
-<p>Similarly, for <span class="math notranslate nohighlight">\(i \neq k\)</span> :
+\end{equation}
+\)</span><span class="math notranslate nohighlight">\(
+Similarly, for \)</span>i \neq k<span class="math notranslate nohighlight">\( :
+\)</span><span class="math notranslate nohighlight">\(
 \begin{equation}
 \begin{split}
 \frac{\partial\mathcal{a_i}}{\partial z_k} &amp; = \frac{\partial}{\partial z_k}
-\left[\frac{e^{z_i}}{\sum_{j=1}^h e^{z_j}}\right]\
-&amp; =
-\left[\frac{(\sum_{j=1}^h e^{z_j}) \frac{\partial}{\partial z_k}e^{z_i}-e^{z_i} \frac{\partial}{\partial z_k}\sum_{j=1}^h e^{z_j}}{(\sum_{j=1}^h e^{z_j})^2}\right]\
-&amp; =
-\left[\frac{(\sum_{j=1}^h e^{z_j}) 0 - e^{z_i}e^{z_k}}{(\sum_{j=1}^h e^{z_j})^2}\right] \
-&amp; = \frac{0-e^{z_i}e^{z_k}}{(\sum_{j=1}^h e^{z_j})^2} \
+\left[\frac{e^{z_i}}{\sum_{j=1}^h e^{z_j}}\right]\\
+&amp; = 
+\left[\frac{(\sum_{j=1}^h e^{z_j}) \frac{\partial}{\partial z_k}e^{z_i}-e^{z_i} \frac{\partial}{\partial z_k}\sum_{j=1}^h e^{z_j}}{(\sum_{j=1}^h e^{z_j})^2}\right]\\
+&amp; = 
+\left[\frac{(\sum_{j=1}^h e^{z_j}) 0 - e^{z_i}e^{z_k}}{(\sum_{j=1}^h e^{z_j})^2}\right] \\
+&amp; = \frac{0-e^{z_i}e^{z_k}}{(\sum_{j=1}^h e^{z_j})^2} \\
 &amp; = \frac{-e^{z_i}}{\sum_{j=1}^h e^{z_j}}\cdot
-\frac{e^{z_k}}{\sum_{j=1}^h e^{z_j}}\
-&amp; = -a_i a_k\
+\frac{e^{z_k}}{\sum_{j=1}^h e^{z_j}}\\
+&amp; = -a_i a_k\\
 \end{split}
-\end{equation}</p>
-<p>Using the two derivations, we can write the Jacobian matrix <span class="math notranslate nohighlight">\(\mathbf Jac(A) \in \mathbb{R}^{h\times h}\)</span> of activations.</p>
-<p>\begin{equation*}
-Jac(A)_{n,n} =
+\end{equation}
+\)</span><span class="math notranslate nohighlight">\(
+Using the two derivations, we can write the Jacobian matrix \)</span>\mathbf Jac(A) \in \mathbb{R}^{h\times h}$ of activations.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}
+\begin{equation*}
+Jac(A)_{n,n} = 
 \begin{pmatrix}
-\frac{\partial a_1}{\partial z_1} &amp; \frac{\partial a_1}{\partial z_2} &amp; \cdots &amp; \frac{\partial a_1}{\partial z_h} \
-\frac{\partial a_2}{\partial z_1} &amp; \frac{\partial a_2}{\partial z_2} &amp; \cdots &amp; \frac{\partial a_2}{\partial z_h} \
-\vdots  &amp; \vdots  &amp; \ddots &amp; \vdots  \
-\frac{\partial a_h}{\partial z_1} &amp; \frac{\partial a_n}{\partial z_2} &amp; \cdots &amp; \frac{\partial a_h}{\partial z_h}
+\frac{\partial a_1}{\partial z_1} &amp; \frac{\partial a_1}{\partial z_2} &amp; \cdots &amp; \frac{\partial a_1}{\partial z_h} \\
+\frac{\partial a_2}{\partial z_1} &amp; \frac{\partial a_2}{\partial z_2} &amp; \cdots &amp; \frac{\partial a_2}{\partial z_h} \\
+\vdots  &amp; \vdots  &amp; \ddots &amp; \vdots  \\
+\frac{\partial a_h}{\partial z_1} &amp; \frac{\partial a_n}{\partial z_2} &amp; \cdots &amp; \frac{\partial a_h}{\partial z_h} 
 \end{pmatrix}
-\end{equation*}</p>
-<p>This can be more efficiently written, by first observing</p>
-<p>\begin{equation}
-\frac{\partial a_i}{\partial z_k} =
-\begin{cases}
-a_i (1-a_k) &amp; i = k \
--a_i a_k &amp; i \neq k \
-\end{cases}
-= (a_i)(\delta_{i,k}-a_k)
-\end{equation}</p>
-<p>Which in matrix form is,</p>
-<p>\begin{equation}
+\end{equation*}
+\end{split}\]</div>
+<p>This can be more efficiently written, by first observing
+$<span class="math notranslate nohighlight">\(
+\begin{equation}
+\frac{\partial a_i}{\partial z_k} = 
+\begin{cases} 
+      a_i (1-a_k) &amp; i = k \\
+      -a_i a_k &amp; i \neq k \\
+   \end{cases}
+  = (a_i)(\delta_{i,k}-a_k)
+\end{equation}
+\)</span><span class="math notranslate nohighlight">\(
+Which in matrix form is, 
+\)</span><span class="math notranslate nohighlight">\(
+\begin{equation}
 \begin{split}
-\frac{\partial \mathbf a}{\partial \mathbf z} &amp; = \mathbf a1_k^T \circ(\mathbf I - 1_k \mathbf a^T) \
+\frac{\partial \mathbf a}{\partial \mathbf z} &amp; = \mathbf a1_k^T \circ(\mathbf I - 1_k \mathbf a^T) \\
 &amp; =\begin{pmatrix}
-a_{1} \
-\vdots \
-a_{h}\
+a_{1} \\
+\vdots \\
+a_{h}\\
 \end{pmatrix}
 \begin{pmatrix}
 1 \cdots 1
 \end{pmatrix}
 \circ
 \left[\begin{pmatrix}
-1 &amp; 0 &amp; \cdots &amp; 0 \
-0 &amp; 1 &amp; \cdots &amp; 0 \
-\vdots  &amp; \vdots  &amp; \ddots &amp; \vdots  \
-0 &amp; 0 &amp; \cdots &amp; 1
+1 &amp; 0 &amp; \cdots &amp; 0 \\
+0 &amp; 1 &amp; \cdots &amp; 0 \\
+\vdots  &amp; \vdots  &amp; \ddots &amp; \vdots  \\
+0 &amp; 0 &amp; \cdots &amp; 1 
 \end{pmatrix}-
 \begin{pmatrix}
-1 \
-\vdots \
-1\
+1 \\
+\vdots \\
+1\\
 \end{pmatrix}
 \begin{pmatrix}
 a_1 \cdots a_h
-\end{pmatrix}\right] \
-&amp; = \begin{bmatrix}
-a_1 &amp; \cdots &amp; a_1 \
-a_2 &amp; \cdots &amp; a_2 \
-\vdots &amp; \ddots &amp; \vdots
-\ a_h &amp; \cdots &amp; a_h
-\end{bmatrix} \circ
+\end{pmatrix}\right] \\
+&amp; = \begin{bmatrix} 
+        a_1 &amp; \cdots &amp; a_1 \\ 
+        a_2 &amp; \cdots &amp; a_2 \\ 
+        \vdots &amp; \ddots &amp; \vdots 
+        \\ a_h &amp; \cdots &amp; a_h 
+    \end{bmatrix} \circ
 \left (\mathbf I -
-\begin{bmatrix}
-a_1 &amp; \cdots &amp; a_1 \
-a_2 &amp; \cdots &amp; a_2 \
-\vdots &amp; \ddots &amp; \vdots \
-a_h &amp; \cdots &amp; a_h
-\end{bmatrix}^\top
-\right ) \
-&amp; = \begin{bmatrix}
-a_1 (1-a_1) &amp; a_1 (-a_2)  &amp; \cdots &amp; a_1 (-a_h) \
-a_2 (-a_1)  &amp; a_2 (1-a_2) &amp; a_2 (-a_3) &amp; \vdots \
-a_3 (-a_1)  &amp; a_3 (-a_2) &amp; \ddots &amp; \vdots\
-a_h (-a_1) &amp; a_h(-a_2)&amp; \cdots &amp;a_h (1-a_h)
-\end{bmatrix}\
-&amp; = \mathbf A
+            \begin{bmatrix} 
+                a_1 &amp; \cdots &amp; a_1 \\ 
+                a_2 &amp; \cdots &amp; a_2 \\ 
+                \vdots &amp; \ddots &amp; \vdots \\ 
+                a_h &amp; \cdots &amp; a_h 
+            \end{bmatrix}^\top
+\right ) \\
+&amp; = \begin{bmatrix} 
+        a_1 (1-a_1) &amp; a_1 (-a_2)  &amp; \cdots &amp; a_1 (-a_h) \\
+        a_2 (-a_1)  &amp; a_2 (1-a_2) &amp; a_2 (-a_3) &amp; \vdots \\
+        a_3 (-a_1)  &amp; a_3 (-a_2) &amp; \ddots &amp; \vdots\\
+        a_h (-a_1) &amp; a_h(-a_2)&amp; \cdots &amp;a_h (1-a_h)
+    \end{bmatrix}\\
+&amp; = \mathbf Jac(A)
 \end{split}
 \end{equation}
-where <span class="math notranslate nohighlight">\(1_k\)</span> is the ones column vector of (h by 1), <span class="math notranslate nohighlight">\(\circ\)</span> is the element wise product, and <span class="math notranslate nohighlight">\(\mathbf I\)</span> is <span class="math notranslate nohighlight">\(h\times h\)</span> identity</p>
+\)</span><span class="math notranslate nohighlight">\(
+where \)</span>1_k<span class="math notranslate nohighlight">\( is the ones column vector of (h by 1), \)</span>\circ<span class="math notranslate nohighlight">\( is the element wise product, and \)</span>\mathbf I<span class="math notranslate nohighlight">\( is \)</span>h\times h$ identity</p>
 <hr class="docutils" />
-<p>The third part of our expression, <span class="math notranslate nohighlight">\(\frac{\partial z}{\partial w_i}\)</span>, is taking the derivative of a scalar w.r.t a vector.</p>
-<p>The <span class="math notranslate nohighlight">\(i\)</span> th logit <span class="math notranslate nohighlight">\(z_i\)</span> has derivative w.r.t to its <span class="math notranslate nohighlight">\(j\)</span> th weight</p>
-<p>\begin{equation}
-\begin{split}
-\frac{\partial\mathcal{z_i}}{\partial w_{ij}} &amp; =
-\frac{\partial}{\partial w_{ij}} [w^T x]\
-&amp; = x_j
-\end{split}
-\end{equation}</p>
-<p>So, $<span class="math notranslate nohighlight">\(\frac{\partial\mathcal{z}}{\partial w_i}=x\)</span>$</p>
-<hr class="docutils" />
-<p>Putting it together</p>
-<p>Substitute the Jacobian into the Chain Rule summation:</p>
+<p>Lastly, the chain rule <span class="math notranslate nohighlight">\(\frac{\partial z_i}{\partial W_{ij}}\)</span> is the derivative of a logit with respect to a weight entry in <span class="math notranslate nohighlight">\(W\)</span></p>
+<p>Recall <span class="math notranslate nohighlight">\(z_i\)</span> is the ith entry of <span class="math notranslate nohighlight">\(x\cdot W\)</span></p>
+<div class="math notranslate nohighlight">
+\[\frac{\partial z_{i}}{\partial W_{ij}} = \frac{\partial }{\partial W_{ij}} \left[x_1 * W_{i1} + \cdots + x_M * W_{iM}\right] = x_i\]</div>
+</section>
+<section id="putting-together-the-chain-rule">
+<h3>Putting together the chain rule<a class="headerlink" href="#putting-together-the-chain-rule" title="Link to this heading">#</a></h3>
+<p>We rewrite the Chain Rule summation using the first term’s gradient derivation</p>
 <div class="math notranslate nohighlight">
 \[\frac{\partial L}{\partial z_i} = \sum_{h} \left( - \frac{y_h}{p_h} \right) \frac{\partial a_h}{\partial z_i}\]</div>
-<p>We split this sum into the case where <span class="math notranslate nohighlight">\(h=i\)</span> and <span class="math notranslate nohighlight">\(h \neq i\)</span>:</p>
+<p>Substitute the jacobian formula into the second term and split this sum into the case where <span class="math notranslate nohighlight">\(h=i\)</span> and <span class="math notranslate nohighlight">\(h \neq i\)</span>:</p>
 <div class="math notranslate nohighlight">
 \[\frac{\partial L}{\partial z_i} = \underbrace{\left(-\frac{y_i}{a_i}\right) a_i(1-a_i)}_{k=i} + \sum_{k \neq i} \underbrace{\left(-\frac{y_k}{a_k}\right) (-a_k a_i)}_{k \neq i}\]</div>
 <p>Simplify the fractions (the <span class="math notranslate nohighlight">\(a\)</span>’s cancel out):</p>
@@ -806,19 +841,37 @@ where <span class="math notranslate nohighlight">\(1_k\)</span> is the ones colu
 \[\frac{\partial L}{\partial z_i} = -y_i + a_i \underbrace{\left( y_i + \sum_{k \neq i} y_k \right)}_{\text{Sum of all } y}\]</div>
 <p>Since <span class="math notranslate nohighlight">\(Y\)</span> is one-hot encoded, the sum of all <span class="math notranslate nohighlight">\(y_k\)</span> is exactly 1.</p>
 <div class="math notranslate nohighlight">
-\[\frac{\partial L}{\partial z_i} = a_i - y_i\]</div>
-<p>Going back to the chain rule, we know <span class="math notranslate nohighlight">\(\frac{\partial L}{\partial z} = P - Y\)</span>, and the gradient with respect to the weights <span class="math notranslate nohighlight">\(W\)</span> is :$<span class="math notranslate nohighlight">\(\nabla_W L = (A - Y)^T X = X^T (A-Y)\)</span>$</p>
+\[\frac{\partial L}{\partial z_i} = \delta_i:= a_i - y_i\]</div>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+\frac{\partial \mathcal{L}}{\partial W_{ij}} &amp;= \frac{\partial \mathcal{L}}{\partial z_i} \cdot \frac{\partial z_i}{\partial W_{ij}} \\
+&amp;= (a_i - y_i) \cdot x_i
+\end{aligned}\end{split}\]</div>
+<div class="math notranslate nohighlight">
+\[\begin{split}\implies \frac{\partial \mathcal{L}}{\partial W} = 
+\begin{pmatrix}
+x_1 \delta_1 &amp; x_1 \delta_2 &amp; \dots &amp; x_1 \delta_h \\
+x_2 \delta_1 &amp; x_2 \delta_2 &amp; \dots &amp; x_2 \delta_h \\
+\vdots &amp; \vdots &amp; \ddots &amp; \vdots \\
+x_M \delta_1 &amp; x_M \delta_2 &amp; \dots &amp; x_M \delta_h
+\end{pmatrix}\end{split}\]</div>
+<p>So, for a single example (<span class="math notranslate nohighlight">\(N=1\)</span>), the gradient is:$<span class="math notranslate nohighlight">\(\frac{\partial \mathcal{L}}{\partial W} = \mathbf{x}^T (\mathbf{a} - \mathbf{y})\)</span>$</p>
+<p>The gradient with respect to the weights <span class="math notranslate nohighlight">\(W\)</span> is</p>
+<div class="math notranslate nohighlight">
+\[\nabla_W L = X^T (A-Y)\]</div>
 <p>This is identical to the gradient update for the two class case, where now every term is a matrix and specfically, A is a matrix of probabilties <span class="math notranslate nohighlight">\((N,h)\)</span>, instead of a vector <span class="math notranslate nohighlight">\((N,)\)</span>.</p>
 <hr class="docutils" />
 <p>Assume we have a model with 3 classes and each example has 2 features.
 <img alt="" src="https://i.imgur.com/654dRYV.gif" /></p>
 <p>Then, our chain rule is summing contributions e.g
+$<span class="math notranslate nohighlight">\(
 \begin{equation}
 \begin{split}
-\frac{dL}{dw_{1,1}} &amp; = \sum_{i=1}^3 \left (\frac{dL}{da_i} \right) \left (\frac{da_i}{dz_1} \right) \left(\frac{dz_1}{dw_{1,1}} \right ) \
+\frac{dL}{dw_{1,1}} &amp; = \sum_{i=1}^3 \left (\frac{dL}{da_i} \right) \left (\frac{da_i}{dz_1} \right) \left(\frac{dz_1}{dw_{1,1}} \right ) \\
 &amp; = -(y_1/a_1)(a_1(1-a_1))x_1 + -(y_2/a_2)(-a_2a_1)x_1 + -(y_3/a_3)(-a_3a_1)x_1
 \end{split}
-\end{equation}</p>
+\end{equation}
+\)</span>$</p>
 </section>
 </section>
 <section id="citations">
@@ -909,6 +962,7 @@ where <span class="math notranslate nohighlight">\(1_k\)</span> is the ones colu
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#loss-function-derivative">Loss Function Derivative</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#putting-together-the-chain-rule">Putting together the chain rule</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#citations">Citations</a></li>
