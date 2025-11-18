@@ -10,6 +10,9 @@ parts:
   - caption: Diffusion and Flow Models
     chapters:
       - file: 2-diffusion-and-flow-models/Score-Matching
+  - caption: Misc
+    chapters:
+      - file: 3-misc/Logistic-Regression
 # chapters:
 # - file: markdown
 # - file: notebooks
