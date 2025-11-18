@@ -357,8 +357,9 @@ document.write(`
 <h1>Building up to Multinomial Logistic Regression<a class="headerlink" href="#building-up-to-multinomial-logistic-regression" title="Link to this heading">#</a></h1>
 <section id="perceptron">
 <h2>Perceptron<a class="headerlink" href="#perceptron" title="Link to this heading">#</a></h2>
-<p>The Perceptron is simply a linear classifier. It does classification using a linear combination of the features <span class="math notranslate nohighlight">\(f(\mathbf x)\)</span> with our weights <span class="math notranslate nohighlight">\(\mathbf w\)</span>, which is the activation <span class="math notranslate nohighlight">\(h_\mathbf w(\mathbf x)\)</span>. The most basic perceptron is a binary classifier, which uses the sign of the activation as the class.
-$<span class="math notranslate nohighlight">\(
+<p>The Perceptron is simply a linear classifier. It does classification using a linear combination of the features <span class="math notranslate nohighlight">\(f(\mathbf x)\)</span> with weights <span class="math notranslate nohighlight">\(\mathbf w\)</span>. Let this be the activation <span class="math notranslate nohighlight">\(h_\mathbf w(\mathbf x)\)</span>. The most basic perceptron is a binary classifier, which uses the sign of the activation as the class.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}
 \begin{equation}
 \text{classify}(\mathbf x) = 
 \left\{
@@ -368,8 +369,8 @@ $<span class="math notranslate nohighlight">\(
     \end{array}
 \right\}
 \end{equation}
-\)</span>$
-If the data are linearly separable, perceptron is guaranteed to converge.</p>
+\end{split}\]</div>
+<p>If the data is linearly separable, perceptron is guaranteed to converge.</p>
 <p>In order to find a decision boundary that does not go through the origin (which may be necessary for some problems), we will modify our feature and weights to add a bias term: add a feature to your sample feature vectors that is always 1, and add an extra weight for this feature to your weight vector. Doing so essentially
 allows us to produce a decision boundary representable by <span class="math notranslate nohighlight">\(\mathbf w^T f(\mathbf x) + b  = 0\)</span> where <span class="math notranslate nohighlight">\(b\)</span> is the weighted bias
 term (i.e. 1 * the last weight in the weight vector).</p>
@@ -404,8 +405,9 @@ h_{\mathbf w + f(\mathbf w)}(\mathbf x) = (\mathbf w + f(\mathbf x))^T f(\mathbf
 <div class="math notranslate nohighlight">
 \[h_\mathbf w(\mathbf x) = \mathbf \sigma(\mathbf w^T f(\mathbf x))\]</div>
 <p>using the logistic function <span class="math notranslate nohighlight">\(\sigma(z) = \frac{1}{1+e^{-z}}\)</span></p>
-<p>The posterior is
-$<span class="math notranslate nohighlight">\(
+<p>The posterior is</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}
 \begin{equation}
 P(y|\mathbf x) = 
 \left\{
@@ -415,7 +417,7 @@ P(y|\mathbf x) =
     \end{array}
 \right\}
 \end{equation}
-\)</span>$</p>
+\end{split}\]</div>
 <p>A more compact way of writing the piecewise function is</p>
 <div class="math notranslate nohighlight">
 \[P(y|\mathbf x) = h_\mathbf w(\mathbf x)^y\cdot(1-h_\mathbf w(\mathbf x))^{(1-y)}\]</div>
@@ -490,8 +492,9 @@ ideal. But this loss has two problems - this is non-convex so gradient-based opt
 <section id="perceptron-loss">
 <h3>Perceptron Loss<a class="headerlink" href="#perceptron-loss" title="Link to this heading">#</a></h3>
 <p>The perceptron optimizes a loss that is has better optimizatin properties.
-We can express the loss for the perceptron of a pair <span class="math notranslate nohighlight">\((\mathbf x,y)\)</span> in terms of the quantity <span class="math notranslate nohighlight">\(y\mathbf w^T f(\mathbf w)\)</span>
-$<span class="math notranslate nohighlight">\(
+We can express the loss for the perceptron of a pair <span class="math notranslate nohighlight">\((\mathbf x,y)\)</span> in terms of the quantity <span class="math notranslate nohighlight">\(y\mathbf w^T f(\mathbf w)\)</span></p>
+<div class="math notranslate nohighlight">
+\[\begin{split}
 \begin{equation}
 \mathcal L_{perc} = 
 \left\{
@@ -501,8 +504,8 @@ $<span class="math notranslate nohighlight">\(
     \end{array}
 \right\}
 \end{equation}
-\)</span><span class="math notranslate nohighlight">\(
-Remember if the ground-truth \)</span>y<span class="math notranslate nohighlight">\( is +1, a correct prediction from our model occurs iff \)</span>\mathbf w^T f(\mathbf x)<span class="math notranslate nohighlight">\( is greater than 0. Similarly, if the ground-truth \)</span>y<span class="math notranslate nohighlight">\( is -1, a correct prediction from our model occurs iff \)</span>\mathbf w^T f(\mathbf x)<span class="math notranslate nohighlight">\( is less than 0. So we can see \)</span>y\mathbf w^T f(\mathbf x)$ is only greater than 0 when the model predicts correctly and should contribute 0 to the loss.</p>
+\end{split}\]</div>
+<p>Remember if the ground-truth <span class="math notranslate nohighlight">\(y\)</span> is +1, a correct prediction from our model occurs iff <span class="math notranslate nohighlight">\(\mathbf w^T f(\mathbf x)\)</span> is greater than 0. Similarly, if the ground-truth <span class="math notranslate nohighlight">\(y\)</span> is -1, a correct prediction from our model occurs iff <span class="math notranslate nohighlight">\(\mathbf w^T f(\mathbf x)\)</span> is less than 0. So we can see <span class="math notranslate nohighlight">\(y\mathbf w^T f(\mathbf x)\)</span> is only greater than 0 when the model predicts correctly and should contribute 0 to the loss.</p>
 <p>Otherwise, the loss is exactly proportional to how wrong the classification is.</p>
 <p>Differentiating the loss with respect to <span class="math notranslate nohighlight">\(\mathbf w\)</span> yields <span class="math notranslate nohighlight">\(−yf(\mathbf x)\)</span> when <span class="math notranslate nohighlight">\(y\mathbf w^T f(\mathbf x)\)</span> is negative; this is a constant with respect to a particular training example. However, recall that this value is a loss that we are attempting to minimize, so we want to use gradient descent which will involve subtracting the gradient from the weights. We therefore recover the standard update rule: add <span class="math notranslate nohighlight">\(f(\mathbf x)\)</span> when <span class="math notranslate nohighlight">\(y\)</span> (the true label) is positive, and subtract it when <span class="math notranslate nohighlight">\(y\)</span> is negative.
 i.e</p>
