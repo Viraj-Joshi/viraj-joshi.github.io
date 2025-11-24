@@ -1,0 +1,1025 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" data-theme="light">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>JiT (Just Image Transformers) Swiss Roll Toy Example &#8212; some technical perusings</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "light";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../_static/proof.css?v=b4b7a797" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css?v=6644e6bb" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=884a7dd3" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '2-diffusion-and-flow-models/JiT';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Building up to Multinomial Logistic Regression" href="../3-misc/Logistic-Regression.html" />
+    <link rel="prev" title="Score Matching" href="Score-Matching.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="light">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">some technical perusings</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Reinforcement Learning</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../1-RL/Implicit-Value-Regularization.html">Implicit Value Regularization (IVR)</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Diffusion and Flow Models</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="Score-Matching.html">Score Matching</a></li>
+
+
+
+
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">JiT (Just Image Transformers) Swiss Roll Toy Example</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Misc</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../3-misc/Logistic-Regression.html">Building up to Multinomial Logistic Regression</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-launch-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Launch interactive content">
+    <i class="fas fa-rocket"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://colab.research.google.com/github/kvfrans/notes/blob/master/2-diffusion-and-flow-models/JiT.ipynb" target="_blank"
+   class="btn btn-sm dropdown-item"
+   title="Launch on Colab"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  
+    <img alt="Colab logo" src="../_static/images/logo_colab.png">
+  </span>
+<span class="btn__text-container">Colab</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>JiT (Just Image Transformers) Swiss Roll Toy Example</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v-losses">V-Losses</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#training-loop">Training Loop</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#slow-training-loop">Slow Training Loop</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fast-training-loop">Fast Training Loop</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ode-solvers">ODE Solvers</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#train-and-sample-for-each-d">Train and sample for each D</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#visualize">Visualize</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="jit-just-image-transformers-swiss-roll-toy-example">
+<h1>JiT (Just Image Transformers) Swiss Roll Toy Example<a class="headerlink" href="#jit-just-image-transformers-swiss-roll-toy-example" title="Link to this heading">#</a></h1>
+<p><a class="reference external" href="https://arxiv.org/pdf/2511.13720">https://arxiv.org/pdf/2511.13720</a></p>
+<p>JiT argues x-prediction is often preferable because clean data <span class="math notranslate nohighlight">\(x\)</span> lies on a low-dimensional manifold (easier for networks to learn), while ε and v span high-dimensional space off-manifold.</p>
+<p>During generation/sampling, transform the network output to the v-space (to solve the ODE <span class="math notranslate nohighlight">\(\frac{dz_t}{dt} = v_\theta(z_t, t)\)</span>)</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">N</span> <span class="o">=</span> <span class="mi">8192</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_spiral_data</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">noise</span><span class="o">=</span><span class="mf">0.02</span><span class="p">):</span>
+    <span class="n">data</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">make_swiss_roll</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">noise</span><span class="o">=</span><span class="n">noise</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[:,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]]</span> <span class="o">/</span> <span class="mf">10.0</span>
+    <span class="k">return</span> <span class="n">jnp</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">get_spiral_data</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="n">noise</span><span class="o">=</span><span class="mf">.5</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">data</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span><span class="n">y</span><span class="o">=</span><span class="n">data</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span><span class="n">s</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.collections.PathCollection at 0x7fdec00fe050&gt;
+</pre></div>
+</div>
+<img alt="../_images/d7e047b474bf7989e4485d412064d1b07cee47d7904a49120d75b8bfcb20e027.png" src="../_images/d7e047b474bf7989e4485d412064d1b07cee47d7904a49120d75b8bfcb20e027.png" />
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">MLP</span><span class="p">(</span><span class="n">eqx</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+  <span class="n">layers</span><span class="p">:</span> <span class="nb">list</span>
+  <span class="n">t_enc</span><span class="p">:</span> <span class="n">eqx</span><span class="o">.</span><span class="n">Module</span>
+
+  <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">key</span><span class="p">,</span><span class="n">D</span><span class="p">,</span><span class="n">t_D</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
+    <span class="n">keys</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+    <span class="n">hidden_dim</span> <span class="o">=</span> <span class="mi">256</span>
+    <span class="n">szs</span> <span class="o">=</span> <span class="p">[</span><span class="n">D</span><span class="o">+</span><span class="n">t_D</span><span class="p">]</span> <span class="o">+</span> <span class="mi">4</span><span class="o">*</span><span class="p">[</span><span class="n">hidden_dim</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">D</span><span class="p">]</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">t_enc</span> <span class="o">=</span> <span class="n">eqx</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">t_D</span><span class="p">,</span><span class="n">key</span><span class="o">=</span><span class="n">keys</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">layers</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,(</span><span class="n">in_dim</span><span class="p">,</span><span class="n">out_dim</span><span class="p">,</span><span class="n">key</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">szs</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="n">szs</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span><span class="n">keys</span><span class="p">[</span><span class="mi">1</span><span class="p">:])):</span>
+      <span class="n">layer</span> <span class="o">=</span> <span class="n">eqx</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">in_dim</span><span class="p">,</span><span class="n">out_dim</span><span class="p">,</span><span class="n">key</span> <span class="o">=</span> <span class="n">key</span><span class="p">)</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span>
+
+  <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">t</span><span class="p">):</span>
+    <span class="n">t_enc</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">t_enc</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
+
+    <span class="c1"># Concatenate x (D) and t (t_D)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">t_enc</span><span class="p">],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="c1"># (B,D+t_d)</span>
+    <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+      <span class="n">x</span> <span class="o">=</span> <span class="n">layer</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+      <span class="n">x</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">](</span><span class="n">x</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">x</span>
+</pre></div>
+</div>
+</div>
+</div>
+<section id="v-losses">
+<h2>V-Losses<a class="headerlink" href="#v-losses" title="Link to this heading">#</a></h2>
+<p>By parameterizing the network output as an <span class="math notranslate nohighlight">\(x\)</span>-prediction,<span class="math notranslate nohighlight">\(v\)</span>-prediction, or <span class="math notranslate nohighlight">\(\epsilon\)</span>-prediction, we can obtain the other two quantities with the two relevant equations in flow matching.</p>
+<div class="math notranslate nohighlight">
+\[z_t = t x + (1-t) \epsilon\]</div>
+<div class="math notranslate nohighlight">
+\[v = x - \epsilon\]</div>
+<p>where <span class="math notranslate nohighlight">\(x \sim p_{data}\)</span> and <span class="math notranslate nohighlight">\(\epsilon \sim \mathcal{N}(0, I)\)</span>.</p>
+<p>For example, if we parameterize the network to predict <span class="math notranslate nohighlight">\(x\)</span>, i.e <span class="math notranslate nohighlight">\(x_\theta = \text{net}_\theta (z_t,t)\)</span>, the above two equations form consistency conditions that any triplet <span class="math notranslate nohighlight">\(x_\theta, \epsilon_\theta, v_\theta\)</span> must satisfy at each timestep.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{cases}
+x_\theta = \text{net}_\theta(z_t, t) &amp; (1) \\
+z_t = t \, x_\theta + (1 - t) \, \epsilon_\theta &amp; (2) \\
+v_\theta = x_\theta - \epsilon_\theta &amp; (3)\\
+\end{cases}\end{split}\]</div>
+<p>By consistency conditions, we mean the other two variables (<span class="math notranslate nohighlight">\(\epsilon_\theta\)</span> and <span class="math notranslate nohighlight">\(v_\theta\)</span>) are completely determined by the constraints above.</p>
+<ol class="arabic simple">
+<li><p>by construction, <span class="math notranslate nohighlight">\(x_\theta\)</span> directly from the network.</p></li>
+<li><p>forward-process consistency: whatever clean image and noise the model believes in, they must reproduce the actually observed (or current) <span class="math notranslate nohighlight">\(z_t\)</span> when interpolated</p></li>
+</ol>
+<ol class="arabic simple" start="3">
+<li><p>velocity-definition consistency: the predicted velocity is defined to be exactly <span class="math notranslate nohighlight">\(x - \epsilon\)</span>.</p></li>
+</ol>
+<p>We obtain <span class="math notranslate nohighlight">\(v_\theta\)</span> by rearranging the second equation and plugging into the third.</p>
+<div class="math notranslate nohighlight">
+\[v_\theta = x_\theta - \frac{z_t - t \, x_\theta}{1 - t} = \frac{x_\theta (1 - t) - (z_t - t \, x_\theta)}{1 - t} = \frac{x_\theta - t \, x_\theta - z_t + t \, x_\theta}{1 - t} = \frac{x_\theta - z_t}{1 - t}\]</div>
+<p>Then, we train with our v-loss as normal:
+$<span class="math notranslate nohighlight">\(L_{v} = \mathbb{E}_{t, x, \epsilon} \left[ \| v_\theta - (x-\epsilon) \|^2 \right]\)</span>$</p>
+<p>This notebook focuses on the <span class="math notranslate nohighlight">\(v\)</span>-loss space for simplicity.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">x_pred_v_loss</span><span class="p">(</span><span class="n">model</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">z_t</span><span class="p">,</span><span class="n">t</span><span class="p">,</span><span class="n">eps</span><span class="p">):</span>
+<span class="w">  </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">  model: nn making x-prediction</span>
+<span class="sd">  x: sampled from p_data</span>
+<span class="sd">  pred: output of the network</span>
+<span class="sd">  z_t: the interpolation between x and eps</span>
+<span class="sd">  t: time step</span>
+<span class="sd">  eps: noise</span>
+<span class="sd">  &#39;&#39;&#39;</span>
+  <span class="n">v_target</span> <span class="o">=</span> <span class="n">x</span><span class="o">-</span><span class="n">eps</span>
+  <span class="n">x_pred</span> <span class="o">=</span> <span class="n">vmap</span><span class="p">(</span><span class="n">model</span><span class="p">)(</span><span class="n">z_t</span><span class="p">,</span><span class="n">t</span><span class="p">)</span>
+  <span class="n">v_theta</span> <span class="o">=</span> <span class="p">(</span><span class="n">x_pred</span> <span class="o">-</span> <span class="n">z_t</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">t</span><span class="p">)</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="mf">.01</span><span class="p">,</span><span class="mi">1</span><span class="o">-</span><span class="mf">.01</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">jnp</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="n">v_target</span><span class="o">-</span><span class="n">v_theta</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">v_pred_v_loss</span><span class="p">(</span><span class="n">model</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">z_t</span><span class="p">,</span><span class="n">t</span><span class="p">,</span><span class="n">eps</span><span class="p">):</span>
+<span class="w">  </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">  model: nn making v-prediction</span>
+<span class="sd">  x: sampled from p_data</span>
+<span class="sd">  pred: output of the network</span>
+<span class="sd">  z_t: the interpolation between x and eps</span>
+<span class="sd">  t: time step</span>
+<span class="sd">  eps: noise</span>
+<span class="sd">  &#39;&#39;&#39;</span>
+  <span class="n">v_target</span> <span class="o">=</span> <span class="n">x</span><span class="o">-</span><span class="n">eps</span>
+  <span class="n">v_pred</span> <span class="o">=</span> <span class="n">vmap</span><span class="p">(</span><span class="n">model</span><span class="p">)(</span><span class="n">z_t</span><span class="p">,</span><span class="n">t</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">jnp</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="n">v_target</span><span class="o">-</span><span class="n">v_pred</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">eps_pred_v_loss</span><span class="p">(</span><span class="n">model</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">z_t</span><span class="p">,</span><span class="n">t</span><span class="p">,</span><span class="n">eps</span><span class="p">):</span>
+<span class="w">  </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">  model: nn making eps-prediction</span>
+<span class="sd">  x: sampled from p_data</span>
+<span class="sd">  pred: output of the network</span>
+<span class="sd">  z_t: the interpolation between x and eps</span>
+<span class="sd">  t: time step</span>
+<span class="sd">  eps: noise</span>
+<span class="sd">  &#39;&#39;&#39;</span>
+  <span class="n">v_target</span> <span class="o">=</span> <span class="n">x</span><span class="o">-</span><span class="n">eps</span>
+  <span class="n">eps_pred</span> <span class="o">=</span> <span class="n">vmap</span><span class="p">(</span><span class="n">model</span><span class="p">)(</span><span class="n">z_t</span><span class="p">,</span><span class="n">t</span><span class="p">)</span>
+  <span class="n">v_theta</span> <span class="o">=</span> <span class="p">(</span><span class="n">z_t</span> <span class="o">-</span> <span class="n">eps_pred</span><span class="p">)</span> <span class="o">/</span> <span class="n">t</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="mf">.05</span><span class="p">,</span><span class="mi">1</span><span class="o">-</span><span class="mf">.05</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">jnp</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="n">v_target</span><span class="o">-</span><span class="n">v_theta</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="training-loop">
+<h2>Training Loop<a class="headerlink" href="#training-loop" title="Link to this heading">#</a></h2>
+<section id="slow-training-loop">
+<h3>Slow Training Loop<a class="headerlink" href="#slow-training-loop" title="Link to this heading">#</a></h3>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">logistic</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+  <span class="k">return</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">jnp</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="p">))</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">make_step</span><span class="p">(</span><span class="n">mlp</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">optim</span><span class="p">,</span> <span class="n">opt_state</span><span class="p">,</span><span class="n">key</span><span class="p">,</span><span class="n">loss_fn</span><span class="p">):</span>
+<span class="w">  </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">  Compute loss and take gradient step on sampled data</span>
+<span class="sd">  &#39;&#39;&#39;</span>
+  <span class="n">step_key</span><span class="p">,</span> <span class="n">noise_key</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">key</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+  <span class="n">t</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">step_key</span><span class="p">,</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;batch_size&#39;</span><span class="p">],</span><span class="mi">1</span><span class="p">))</span>
+  <span class="c1"># t = logistic(t)</span>
+  <span class="n">t</span><span class="o">=</span><span class="n">t</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="mf">.01</span><span class="p">,</span><span class="mi">1</span><span class="o">-</span><span class="mf">.01</span><span class="p">)</span>
+  <span class="c1"># (B,1)</span>
+  <span class="n">eps</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">noise_key</span><span class="p">,</span><span class="n">shape</span><span class="o">=</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+  <span class="c1"># (B, D)</span>
+  <span class="n">z_t</span> <span class="o">=</span> <span class="n">t</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">t</span><span class="p">)</span> <span class="o">*</span> <span class="n">eps</span>
+  <span class="c1"># (B, D)</span>
+
+  <span class="n">loss_value</span><span class="p">,</span> <span class="n">grads</span> <span class="o">=</span> <span class="n">eqx</span><span class="o">.</span><span class="n">filter_value_and_grad</span><span class="p">(</span><span class="n">loss_fn</span><span class="p">)(</span><span class="n">mlp</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span><span class="n">z_t</span><span class="p">,</span><span class="n">t</span><span class="p">,</span><span class="n">eps</span><span class="p">)</span>
+
+  <span class="n">updates</span><span class="p">,</span> <span class="n">opt_state</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+        <span class="n">grads</span><span class="p">,</span> <span class="n">opt_state</span><span class="p">,</span> <span class="n">eqx</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">mlp</span><span class="p">,</span> <span class="n">eqx</span><span class="o">.</span><span class="n">is_array</span><span class="p">)</span>
+    <span class="p">)</span>
+  <span class="n">mlp</span> <span class="o">=</span> <span class="n">eqx</span><span class="o">.</span><span class="n">apply_updates</span><span class="p">(</span><span class="n">mlp</span><span class="p">,</span> <span class="n">updates</span><span class="p">)</span>
+
+  <span class="k">return</span> <span class="n">mlp</span><span class="p">,</span><span class="n">opt_state</span><span class="p">,</span><span class="n">loss_value</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">train_model</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">pred_type</span><span class="p">,</span> <span class="n">loss_type</span> <span class="o">=</span> <span class="s1">&#39;v_loss&#39;</span><span class="p">):</span>
+  <span class="n">mlp</span> <span class="o">=</span> <span class="n">MLP</span><span class="p">(</span><span class="n">key</span><span class="p">,</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;D&#39;</span><span class="p">])</span>
+  <span class="n">optim</span> <span class="o">=</span> <span class="n">optax</span><span class="o">.</span><span class="n">adam</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;lr&#39;</span><span class="p">])</span>
+  <span class="n">opt_state</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">eqx</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">mlp</span><span class="p">,</span> <span class="n">eqx</span><span class="o">.</span><span class="n">is_array</span><span class="p">))</span>
+
+  <span class="k">if</span> <span class="n">pred_type</span> <span class="o">==</span> <span class="s1">&#39;x_prediction&#39;</span><span class="p">:</span>
+    <span class="n">loss_fn</span> <span class="o">=</span> <span class="n">x_pred_v_loss</span>
+  <span class="k">elif</span> <span class="n">pred_type</span> <span class="o">==</span> <span class="s1">&#39;v_prediction&#39;</span><span class="p">:</span>
+    <span class="n">loss_fn</span> <span class="o">=</span> <span class="n">v_pred_v_loss</span>
+  <span class="k">elif</span> <span class="n">pred_type</span> <span class="o">==</span> <span class="s1">&#39;eps_prediction&#39;</span><span class="p">:</span>
+    <span class="n">loss_fn</span> <span class="o">=</span> <span class="n">eps_pred_v_loss</span>
+
+  <span class="nd">@eqx</span><span class="o">.</span><span class="n">filter_jit</span>
+  <span class="k">def</span><span class="w"> </span><span class="nf">step_fn</span><span class="p">(</span><span class="n">mlp</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">opt_state</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+      <span class="k">return</span> <span class="n">make_step</span><span class="p">(</span><span class="n">mlp</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">optim</span><span class="p">,</span> <span class="n">opt_state</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">loss_fn</span><span class="p">)</span>
+
+  <span class="n">losses</span> <span class="o">=</span> <span class="p">[]</span>
+  <span class="n">num_batches</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">//</span> <span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;batch_size&#39;</span><span class="p">]</span>
+  <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;epochs&#39;</span><span class="p">])):</span>
+    <span class="n">key</span><span class="p">,</span> <span class="n">perm_key</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">key</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">perm</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">permutation</span><span class="p">(</span><span class="n">perm_key</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">shuffled_data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">perm</span><span class="p">]</span>
+
+    <span class="n">epoch_loss</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_batches</span><span class="p">):</span>
+      <span class="n">key</span><span class="p">,</span> <span class="n">train_key</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+      <span class="n">x_hat</span> <span class="o">=</span> <span class="n">shuffled_data</span><span class="p">[</span><span class="n">i</span><span class="o">*</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;batch_size&#39;</span><span class="p">]</span> <span class="p">:</span> <span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;batch_size&#39;</span><span class="p">]]</span>
+      <span class="c1"># (B,2)</span>
+      <span class="n">x</span> <span class="o">=</span> <span class="n">x_hat</span><span class="nd">@P</span><span class="o">.</span><span class="n">T</span>
+      <span class="c1"># (B,D)</span>
+      <span class="n">mlp</span><span class="p">,</span> <span class="n">opt_state</span><span class="p">,</span> <span class="n">train_loss</span> <span class="o">=</span> <span class="n">step_fn</span><span class="p">(</span><span class="n">mlp</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">opt_state</span><span class="p">,</span><span class="n">train_key</span><span class="p">)</span>
+      <span class="n">epoch_loss</span> <span class="o">+=</span> <span class="n">train_loss</span>
+    <span class="n">losses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">epoch_loss</span><span class="o">/</span><span class="n">num_batches</span><span class="p">)</span>
+
+  <span class="c1"># print(f&quot;Step={step} Loss={epoch_loss/num_batches}&quot;)</span>
+  <span class="c1"># plt.plot(losses)</span>
+  <span class="c1"># plt.show()</span>
+
+  <span class="k">return</span> <span class="n">mlp</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="fast-training-loop">
+<h3>Fast Training Loop<a class="headerlink" href="#fast-training-loop" title="Link to this heading">#</a></h3>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">logistic</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">jnp</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="p">))</span>
+
+<span class="c1"># 1. Modified make_step to handle P projection internally and conform to scan signature</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">make_step_scanned</span><span class="p">(</span><span class="n">carry</span><span class="p">,</span> <span class="n">batch_data</span><span class="p">,</span> <span class="n">optim</span><span class="p">,</span> <span class="n">static_loss_fn</span><span class="p">,</span> <span class="n">P</span><span class="p">):</span>
+    <span class="n">mlp</span><span class="p">,</span> <span class="n">opt_state</span><span class="p">,</span> <span class="n">key</span> <span class="o">=</span> <span class="n">carry</span>
+    
+    <span class="n">x_hat</span> <span class="o">=</span> <span class="n">batch_data</span>
+    
+    <span class="c1"># projection inside JIT so it&#39;s fused and fast</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">x_hat</span> <span class="o">@</span> <span class="n">P</span><span class="o">.</span><span class="n">T</span> 
+    
+    <span class="n">step_key</span><span class="p">,</span> <span class="n">noise_key</span><span class="p">,</span> <span class="n">next_key</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+
+    <span class="n">t</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">step_key</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="mf">.01</span><span class="p">,</span> <span class="mi">1</span><span class="o">-</span><span class="mf">.01</span><span class="p">)</span>
+    <span class="n">eps</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">noise_key</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="n">z_t</span> <span class="o">=</span> <span class="n">t</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">t</span><span class="p">)</span> <span class="o">*</span> <span class="n">eps</span>
+
+    <span class="n">loss_value</span><span class="p">,</span> <span class="n">grads</span> <span class="o">=</span> <span class="n">eqx</span><span class="o">.</span><span class="n">filter_value_and_grad</span><span class="p">(</span><span class="n">static_loss_fn</span><span class="p">)(</span><span class="n">mlp</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">z_t</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">eps</span><span class="p">)</span>
+
+    <span class="n">updates</span><span class="p">,</span> <span class="n">opt_state</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+        <span class="n">grads</span><span class="p">,</span> <span class="n">opt_state</span><span class="p">,</span> <span class="n">eqx</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">mlp</span><span class="p">,</span> <span class="n">eqx</span><span class="o">.</span><span class="n">is_array</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">mlp</span> <span class="o">=</span> <span class="n">eqx</span><span class="o">.</span><span class="n">apply_updates</span><span class="p">(</span><span class="n">mlp</span><span class="p">,</span> <span class="n">updates</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="n">mlp</span><span class="p">,</span> <span class="n">opt_state</span><span class="p">,</span> <span class="n">next_key</span><span class="p">),</span> <span class="n">loss_value</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">train_model</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">pred_type</span><span class="p">,</span> <span class="n">loss_type</span><span class="o">=</span><span class="s1">&#39;v_loss&#39;</span><span class="p">):</span>
+    <span class="n">mlp</span> <span class="o">=</span> <span class="n">MLP</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;D&#39;</span><span class="p">])</span>
+    <span class="n">optim</span> <span class="o">=</span> <span class="n">optax</span><span class="o">.</span><span class="n">adam</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;lr&#39;</span><span class="p">])</span>
+    <span class="n">opt_state</span> <span class="o">=</span> <span class="n">optim</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">eqx</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">mlp</span><span class="p">,</span> <span class="n">eqx</span><span class="o">.</span><span class="n">is_array</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">pred_type</span> <span class="o">==</span> <span class="s1">&#39;x_prediction&#39;</span><span class="p">:</span>
+        <span class="n">loss_fn</span> <span class="o">=</span> <span class="n">x_pred_v_loss</span>
+    <span class="k">elif</span> <span class="n">pred_type</span> <span class="o">==</span> <span class="s1">&#39;v_prediction&#39;</span><span class="p">:</span>
+        <span class="n">loss_fn</span> <span class="o">=</span> <span class="n">v_pred_v_loss</span>
+    <span class="k">elif</span> <span class="n">pred_type</span> <span class="o">==</span> <span class="s1">&#39;eps_prediction&#39;</span><span class="p">:</span>
+        <span class="n">loss_fn</span> <span class="o">=</span> <span class="n">eps_pred_v_loss</span>
+
+    <span class="c1"># Calculate batching dimensions</span>
+    <span class="n">num_train_samples</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="c1"># Ensure we drop the last incomplete batch to keep shapes uniform for scan</span>
+    <span class="n">num_batches</span> <span class="o">=</span> <span class="n">num_train_samples</span> <span class="o">//</span> <span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;batch_size&#39;</span><span class="p">]</span>
+    <span class="c1"># Truncate data to fit perfectly into batches</span>
+    <span class="n">data_truncated</span> <span class="o">=</span> <span class="n">data</span><span class="p">[:</span><span class="n">num_batches</span> <span class="o">*</span> <span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;batch_size&#39;</span><span class="p">]]</span>
+
+    <span class="c1"># 2. Define the epoch function (The outer loop)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run_epoch</span><span class="p">(</span><span class="n">carrier</span><span class="p">,</span> <span class="n">data_shuffled</span><span class="p">):</span>
+        <span class="c1"># Scan automatically iterates over the first dimension of data_shuffled</span>
+        <span class="c1"># data_shuffled shape: (num_batches, batch_size, input_dim)</span>
+        
+        <span class="n">final_carrier</span><span class="p">,</span> <span class="n">losses</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">lax</span><span class="o">.</span><span class="n">scan</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">c</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">make_step_scanned</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">optim</span><span class="p">,</span> <span class="n">loss_fn</span><span class="p">,</span> <span class="n">P</span><span class="p">),</span>
+            <span class="n">carrier</span><span class="p">,</span>
+            <span class="n">data_shuffled</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">final_carrier</span><span class="p">,</span> <span class="n">jnp</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">losses</span><span class="p">)</span>
+
+    <span class="c1"># 3. JIT the ENTIRE epoch loop</span>
+    <span class="nd">@eqx</span><span class="o">.</span><span class="n">filter_jit</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">train_epoch_jit</span><span class="p">(</span><span class="n">mlp</span><span class="p">,</span> <span class="n">opt_state</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">data_epoch</span><span class="p">):</span>
+        <span class="c1"># Reshape data to (num_batches, batch_size, features)</span>
+        <span class="c1"># This effectively &quot;batches&quot; the data for scan</span>
+        <span class="n">data_reshaped</span> <span class="o">=</span> <span class="n">data_epoch</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">num_batches</span><span class="p">,</span> <span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;batch_size&#39;</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        
+        <span class="n">carrier</span> <span class="o">=</span> <span class="p">(</span><span class="n">mlp</span><span class="p">,</span> <span class="n">opt_state</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">mlp</span><span class="p">,</span> <span class="n">opt_state</span><span class="p">,</span> <span class="n">key</span><span class="p">),</span> <span class="n">epoch_loss</span> <span class="o">=</span> <span class="n">run_epoch</span><span class="p">(</span><span class="n">carrier</span><span class="p">,</span> <span class="n">data_reshaped</span><span class="p">)</span>
+        
+        <span class="k">return</span> <span class="n">mlp</span><span class="p">,</span> <span class="n">opt_state</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">epoch_loss</span>
+
+    <span class="n">losses</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="c1"># Main Loop (Python only handles Epochs now)</span>
+    <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;epochs&#39;</span><span class="p">])):</span>
+        <span class="n">key</span><span class="p">,</span> <span class="n">perm_key</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        
+        <span class="n">perm</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">permutation</span><span class="p">(</span><span class="n">perm_key</span><span class="p">,</span> <span class="n">data_truncated</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">shuffled_data</span> <span class="o">=</span> <span class="n">data_truncated</span><span class="p">[</span><span class="n">perm</span><span class="p">]</span>
+        
+        <span class="c1"># Run optimized epoch</span>
+        <span class="n">mlp</span><span class="p">,</span> <span class="n">opt_state</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">epoch_loss</span> <span class="o">=</span> <span class="n">train_epoch_jit</span><span class="p">(</span><span class="n">mlp</span><span class="p">,</span> <span class="n">opt_state</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">shuffled_data</span><span class="p">)</span>
+        
+        <span class="n">losses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">epoch_loss</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">mlp</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="ode-solvers">
+<h2>ODE Solvers<a class="headerlink" href="#ode-solvers" title="Link to this heading">#</a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># x_{t+h} = x_t + h * v_theta(x,t)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">x_euler_step</span><span class="p">(</span><span class="n">model_fn</span><span class="p">,</span><span class="n">z</span><span class="p">,</span><span class="n">t</span><span class="p">,</span><span class="n">dt</span><span class="p">):</span>
+  <span class="c1"># z:  (num_samples, D)</span>
+  <span class="c1"># t:  scalar</span>
+  <span class="n">t_vec</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="mi">1</span><span class="p">,),</span> <span class="n">t</span><span class="p">)</span> <span class="c1"># (1,)</span>
+  <span class="n">x_pred</span> <span class="o">=</span> <span class="n">vmap</span><span class="p">(</span><span class="n">model_fn</span><span class="p">,</span><span class="n">in_axes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="kc">None</span><span class="p">))(</span><span class="n">z</span><span class="p">,</span><span class="n">t_vec</span><span class="p">)</span>  <span class="c1"># in_axes (0,None) indicates to parallelize over batch, and pass same t</span>
+  <span class="n">v_hat</span> <span class="o">=</span> <span class="p">(</span><span class="n">x_pred</span> <span class="o">-</span> <span class="n">z</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">t</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">z</span> <span class="o">+</span> <span class="n">dt</span><span class="o">*</span><span class="n">v_hat</span><span class="p">,</span><span class="n">z</span>
+
+<span class="c1"># x_{t+h} = x_t + h * v_theta(x,t)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">v_euler_step</span><span class="p">(</span><span class="n">model_fn</span><span class="p">,</span><span class="n">z</span><span class="p">,</span><span class="n">t</span><span class="p">,</span><span class="n">dt</span><span class="p">):</span>
+  <span class="c1"># z:  (num_samples, D)</span>
+  <span class="c1"># t:  (num_samples,)</span>
+  <span class="n">t_vec</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="mi">1</span><span class="p">,),</span> <span class="n">t</span><span class="p">)</span>
+  <span class="n">v_hat</span> <span class="o">=</span> <span class="n">vmap</span><span class="p">(</span><span class="n">model_fn</span><span class="p">,</span><span class="n">in_axes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="kc">None</span><span class="p">))(</span><span class="n">z</span><span class="p">,</span><span class="n">t_vec</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">z</span> <span class="o">+</span> <span class="n">dt</span><span class="o">*</span><span class="n">v_hat</span><span class="p">,</span><span class="n">z</span>
+
+<span class="c1"># x_{t+h} = x_t + h * v_theta(x,t)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">eps_euler_step</span><span class="p">(</span><span class="n">model_fn</span><span class="p">,</span><span class="n">z</span><span class="p">,</span><span class="n">t</span><span class="p">,</span><span class="n">dt</span><span class="p">):</span>
+  <span class="c1"># z:  (num_samples, D)</span>
+  <span class="c1"># t:  scalar</span>
+  <span class="n">t_vec</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="mi">1</span><span class="p">,),</span> <span class="n">t</span><span class="p">)</span> <span class="c1"># (1,)</span>
+  <span class="n">eps_pred</span> <span class="o">=</span> <span class="n">vmap</span><span class="p">(</span><span class="n">model_fn</span><span class="p">,</span><span class="n">in_axes</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="kc">None</span><span class="p">))(</span><span class="n">z</span><span class="p">,</span><span class="n">t_vec</span><span class="p">)</span>
+  <span class="n">v_hat</span> <span class="o">=</span> <span class="p">(</span><span class="n">z</span><span class="o">-</span><span class="n">eps_pred</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">z</span> <span class="o">+</span> <span class="n">dt</span><span class="o">*</span><span class="n">v_hat</span><span class="p">,</span><span class="n">z</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="train-and-sample-for-each-d">
+<h2>Train and sample for each D<a class="headerlink" href="#train-and-sample-for-each-d" title="Link to this heading">#</a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span>
+<span class="n">vpreds</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">xpreds</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">eps_preds</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">Ps</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="n">cfg</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;epochs&#39;</span><span class="p">:</span> <span class="mi">2000</span><span class="p">,</span>
+    <span class="s1">&#39;batch_size&#39;</span><span class="p">:</span> <span class="mi">1024</span><span class="p">,</span>
+    <span class="s1">&#39;lr&#39;</span><span class="p">:</span> <span class="mf">1e-3</span><span class="p">,</span>
+    <span class="s1">&#39;D&#39;</span><span class="p">:</span> <span class="mi">2</span>
+<span class="p">}</span>
+
+<span class="n">num_samples</span> <span class="o">=</span> <span class="mi">10000</span>
+<span class="n">num_steps</span> <span class="o">=</span> <span class="mi">50</span>
+
+<span class="n">key</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">PRNGKey</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">ts</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">.01</span><span class="p">,</span><span class="mf">1.0</span><span class="o">-</span><span class="mf">.01</span><span class="p">,</span><span class="n">num_steps</span><span class="p">)</span>
+<span class="n">dt</span> <span class="o">=</span> <span class="n">ts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">ts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># Constant step size</span>
+
+<span class="n">d_keys</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">key</span><span class="p">,</span><span class="mi">6</span><span class="p">)</span>
+<span class="n">Ds</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">512</span><span class="p">]</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">Ds</span><span class="p">)):</span>
+  <span class="n">d</span> <span class="o">=</span> <span class="n">Ds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+  <span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;D&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span>
+  <span class="c1"># Generate random projection</span>
+  <span class="n">A</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">d_keys</span><span class="p">[</span><span class="n">i</span><span class="p">],(</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;D&#39;</span><span class="p">],</span> <span class="mi">2</span><span class="p">))</span>
+  <span class="c1"># P is a orthonormal projection matrix</span>
+  <span class="n">P</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">qr</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+  <span class="n">P</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">P</span><span class="p">)</span>
+
+  <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Training x-prediction for dimension </span><span class="si">{</span><span class="n">d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+  <span class="n">mlp_x</span> <span class="o">=</span> <span class="n">train_model</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="n">d_keys</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">P</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">pred_type</span><span class="o">=</span><span class="s2">&quot;x_prediction&quot;</span><span class="p">)</span>
+  <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Training eps-prediction for dimension </span><span class="si">{</span><span class="n">d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+  <span class="n">mlp_eps</span> <span class="o">=</span> <span class="n">train_model</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="n">d_keys</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">P</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">pred_type</span><span class="o">=</span><span class="s2">&quot;eps_prediction&quot;</span><span class="p">)</span>
+  <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Training v-prediction for dimension </span><span class="si">{</span><span class="n">d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+  <span class="n">mlp_v</span> <span class="o">=</span> <span class="n">train_model</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="n">d_keys</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">P</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">pred_type</span><span class="o">=</span><span class="s2">&quot;v_prediction&quot;</span><span class="p">)</span>
+
+  <span class="n">x0</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">d_keys</span><span class="p">[</span><span class="n">i</span><span class="p">],(</span><span class="n">num_samples</span><span class="p">,</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;D&#39;</span><span class="p">]))</span>
+  <span class="c1"># (num_samples, D)</span>
+
+  <span class="n">step_fn_x</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">x_euler_step</span><span class="p">,</span> <span class="n">mlp_x</span><span class="p">,</span><span class="n">dt</span><span class="o">=</span><span class="n">dt</span><span class="p">)</span>
+  <span class="n">step_fn_eps</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">eps_euler_step</span><span class="p">,</span> <span class="n">mlp_eps</span><span class="p">,</span><span class="n">dt</span><span class="o">=</span><span class="n">dt</span><span class="p">)</span>
+  <span class="n">step_fn_v</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">v_euler_step</span><span class="p">,</span> <span class="n">mlp_v</span><span class="p">,</span><span class="n">dt</span><span class="o">=</span><span class="n">dt</span><span class="p">)</span>
+  
+  <span class="n">x1_xpred</span><span class="p">,</span> <span class="n">history</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">scan</span><span class="p">(</span><span class="n">step_fn_x</span><span class="p">,</span><span class="n">init</span><span class="o">=</span><span class="n">x0</span><span class="p">,</span><span class="n">xs</span><span class="o">=</span><span class="n">ts</span><span class="p">)</span>
+  <span class="n">x1_eps_pred</span><span class="p">,</span> <span class="n">history</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">scan</span><span class="p">(</span><span class="n">step_fn_eps</span><span class="p">,</span><span class="n">init</span><span class="o">=</span><span class="n">x0</span><span class="p">,</span><span class="n">xs</span><span class="o">=</span><span class="n">ts</span><span class="p">)</span>
+  <span class="n">x1_vpred</span><span class="p">,</span> <span class="n">history</span> <span class="o">=</span> <span class="n">lax</span><span class="o">.</span><span class="n">scan</span><span class="p">(</span><span class="n">step_fn_v</span><span class="p">,</span><span class="n">init</span><span class="o">=</span><span class="n">x0</span><span class="p">,</span><span class="n">xs</span><span class="o">=</span><span class="n">ts</span><span class="p">)</span>
+
+  <span class="n">xpreds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x1_xpred</span><span class="p">)</span>
+  <span class="n">eps_preds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x1_eps_pred</span><span class="p">)</span>
+  <span class="n">vpreds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x1_vpred</span><span class="p">)</span>
+  <span class="n">Ps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">P</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Training x-prediction for dimension 2
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>  0%|          | 0/2000 [00:00&lt;?, ?it/s]
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 2000/2000 [00:08&lt;00:00, 237.22it/s]
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Training eps-prediction for dimension 2
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 2000/2000 [00:08&lt;00:00, 235.75it/s]
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Training v-prediction for dimension 2
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 2000/2000 [00:08&lt;00:00, 237.53it/s]
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Training x-prediction for dimension 8
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 2000/2000 [00:09&lt;00:00, 217.64it/s]
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Training eps-prediction for dimension 8
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 2000/2000 [00:08&lt;00:00, 226.43it/s]
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Training v-prediction for dimension 8
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 2000/2000 [00:08&lt;00:00, 231.45it/s]
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Training x-prediction for dimension 16
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 2000/2000 [00:09&lt;00:00, 216.29it/s]
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Training eps-prediction for dimension 16
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 2000/2000 [00:08&lt;00:00, 223.22it/s]
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Training v-prediction for dimension 16
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 2000/2000 [00:09&lt;00:00, 220.59it/s]
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Training x-prediction for dimension 32
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 2000/2000 [00:08&lt;00:00, 222.66it/s]
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Training eps-prediction for dimension 32
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 2000/2000 [00:08&lt;00:00, 226.87it/s]
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Training v-prediction for dimension 32
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 2000/2000 [00:08&lt;00:00, 231.21it/s]
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Training x-prediction for dimension 128
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 2000/2000 [00:09&lt;00:00, 205.49it/s]
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Training eps-prediction for dimension 128
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 2000/2000 [00:09&lt;00:00, 219.97it/s]
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Training v-prediction for dimension 128
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 2000/2000 [00:08&lt;00:00, 224.48it/s]
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Training x-prediction for dimension 512
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 2000/2000 [00:11&lt;00:00, 178.60it/s]
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Training eps-prediction for dimension 512
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 2000/2000 [00:11&lt;00:00, 177.45it/s]
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Training v-prediction for dimension 512
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 2000/2000 [00:11&lt;00:00, 178.75it/s]
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="visualize">
+<h2>Visualize<a class="headerlink" href="#visualize" title="Link to this heading">#</a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">15</span><span class="p">))</span>
+<span class="n">column_titles</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Original Data&quot;</span><span class="p">,</span> <span class="s2">&quot;x-pred&quot;</span><span class="p">,</span> <span class="s2">&quot;eps-pred&quot;</span><span class="p">,</span> <span class="s2">&quot;v-pred&quot;</span><span class="p">]</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
+  <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">column_titles</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">):</span>
+  <span class="n">P</span> <span class="o">=</span> <span class="n">Ps</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+  <span class="c1"># left-most subplot shows the original 2D data</span>
+  <span class="n">axes</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">data</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span><span class="n">data</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span><span class="n">s</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span><span class="n">c</span><span class="o">=</span><span class="s1">&#39;orange&#39;</span><span class="p">)</span>
+  <span class="c1"># Horizontal row label showing the latent dimension D</span>
+  <span class="n">axes</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;D=</span><span class="si">{</span><span class="n">Ds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">)</span>
+  <span class="c1"># enforce consistent axis limits and grid on each subplot (do this in a small loop to avoid repetition)</span>
+  <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
+    <span class="n">axes</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">)</span>
+    <span class="n">axes</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="o">-</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">)</span>
+    <span class="n">axes</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+  <span class="n">x_hat_xpred</span> <span class="o">=</span> <span class="n">xpreds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">@</span> <span class="n">P</span>
+  <span class="n">axes</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x_hat_xpred</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span><span class="n">x_hat_xpred</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span><span class="n">s</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+  <span class="n">x_hat_eps_pred</span> <span class="o">=</span> <span class="n">eps_preds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">@</span> <span class="n">P</span>
+  <span class="n">axes</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x_hat_eps_pred</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span><span class="n">x_hat_eps_pred</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span><span class="n">s</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+  <span class="n">x_hat_vpred</span> <span class="o">=</span> <span class="n">vpreds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">@</span> <span class="n">P</span>
+  <span class="n">axes</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x_hat_vpred</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span><span class="n">x_hat_vpred</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span><span class="n">s</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+
+<span class="c1"># Apply tight layout so labels don&#39;t overlap</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/2bd7bb10e942444db447c781ea1315244df2d5a57d34105d7e121ef5108d6aef.png" src="../_images/2bd7bb10e942444db447c781ea1315244df2d5a57d34105d7e121ef5108d6aef.png" />
+</div>
+</div>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./2-diffusion-and-flow-models"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="Score-Matching.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Score Matching</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../3-misc/Logistic-Regression.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Building up to Multinomial Logistic Regression</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#v-losses">V-Losses</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#training-loop">Training Loop</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#slow-training-loop">Slow Training Loop</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fast-training-loop">Fast Training Loop</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ode-solvers">ODE Solvers</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#train-and-sample-for-each-d">Train and sample for each D</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#visualize">Visualize</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Viraj Joshi
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
