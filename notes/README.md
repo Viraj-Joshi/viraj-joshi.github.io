@@ -1,4 +1,4 @@
-# some technical perusings
+# some tutorials
 
 I often like to write down in my own words topics in ML that I have spent significant time learning about. Instead of keeping it on paper, I thought I might as well write it out on the internet, forcing me to distill and clarify my own understanding.
 
