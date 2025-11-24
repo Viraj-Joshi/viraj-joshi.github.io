@@ -569,7 +569,6 @@ $<span class="math notranslate nohighlight">\(L_{v} = \mathbb{E}_{t, x, \epsilon
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">logistic</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
     <span class="k">return</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">jnp</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="p">))</span>
 
-<span class="c1"># 1. Modified make_step to handle P projection internally and conform to scan signature</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">make_step_scanned</span><span class="p">(</span><span class="n">carry</span><span class="p">,</span> <span class="n">batch_data</span><span class="p">,</span> <span class="n">optim</span><span class="p">,</span> <span class="n">static_loss_fn</span><span class="p">,</span> <span class="n">P</span><span class="p">):</span>
     <span class="n">mlp</span><span class="p">,</span> <span class="n">opt_state</span><span class="p">,</span> <span class="n">key</span> <span class="o">=</span> <span class="n">carry</span>
     
@@ -606,16 +605,14 @@ $<span class="math notranslate nohighlight">\(L_{v} = \mathbb{E}_{t, x, \epsilon
     <span class="k">elif</span> <span class="n">pred_type</span> <span class="o">==</span> <span class="s1">&#39;eps_prediction&#39;</span><span class="p">:</span>
         <span class="n">loss_fn</span> <span class="o">=</span> <span class="n">eps_pred_v_loss</span>
 
-    <span class="c1"># Calculate batching dimensions</span>
     <span class="n">num_train_samples</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="c1"># Ensure we drop the last incomplete batch to keep shapes uniform for scan</span>
+    <span class="c1"># drop the last incomplete batch to keep shapes uniform for scan</span>
     <span class="n">num_batches</span> <span class="o">=</span> <span class="n">num_train_samples</span> <span class="o">//</span> <span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;batch_size&#39;</span><span class="p">]</span>
-    <span class="c1"># Truncate data to fit perfectly into batches</span>
+    <span class="c1"># truncate data to fit perfectly into batches</span>
     <span class="n">data_truncated</span> <span class="o">=</span> <span class="n">data</span><span class="p">[:</span><span class="n">num_batches</span> <span class="o">*</span> <span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;batch_size&#39;</span><span class="p">]]</span>
 
-    <span class="c1"># 2. Define the epoch function (The outer loop)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">run_epoch</span><span class="p">(</span><span class="n">carrier</span><span class="p">,</span> <span class="n">data_shuffled</span><span class="p">):</span>
-        <span class="c1"># Scan automatically iterates over the first dimension of data_shuffled</span>
+        <span class="c1"># scan automatically iterates over the first dimension of data_shuffled</span>
         <span class="c1"># data_shuffled shape: (num_batches, batch_size, input_dim)</span>
         
         <span class="n">final_carrier</span><span class="p">,</span> <span class="n">losses</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">lax</span><span class="o">.</span><span class="n">scan</span><span class="p">(</span>
@@ -625,11 +622,10 @@ $<span class="math notranslate nohighlight">\(L_{v} = \mathbb{E}_{t, x, \epsilon
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">final_carrier</span><span class="p">,</span> <span class="n">jnp</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">losses</span><span class="p">)</span>
 
-    <span class="c1"># 3. JIT the ENTIRE epoch loop</span>
+    <span class="c1"># 3. JIT epoch loop</span>
     <span class="nd">@eqx</span><span class="o">.</span><span class="n">filter_jit</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">train_epoch_jit</span><span class="p">(</span><span class="n">mlp</span><span class="p">,</span> <span class="n">opt_state</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">data_epoch</span><span class="p">):</span>
-        <span class="c1"># Reshape data to (num_batches, batch_size, features)</span>
-        <span class="c1"># This effectively &quot;batches&quot; the data for scan</span>
+        <span class="c1"># reshape data to (num_batches, batch_size, features)</span>
         <span class="n">data_reshaped</span> <span class="o">=</span> <span class="n">data_epoch</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">num_batches</span><span class="p">,</span> <span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;batch_size&#39;</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
         
         <span class="n">carrier</span> <span class="o">=</span> <span class="p">(</span><span class="n">mlp</span><span class="p">,</span> <span class="n">opt_state</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
@@ -639,14 +635,12 @@ $<span class="math notranslate nohighlight">\(L_{v} = \mathbb{E}_{t, x, \epsilon
 
     <span class="n">losses</span> <span class="o">=</span> <span class="p">[]</span>
     
-    <span class="c1"># Main Loop (Python only handles Epochs now)</span>
     <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">cfg</span><span class="p">[</span><span class="s1">&#39;epochs&#39;</span><span class="p">])):</span>
         <span class="n">key</span><span class="p">,</span> <span class="n">perm_key</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
         
         <span class="n">perm</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">permutation</span><span class="p">(</span><span class="n">perm_key</span><span class="p">,</span> <span class="n">data_truncated</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="n">shuffled_data</span> <span class="o">=</span> <span class="n">data_truncated</span><span class="p">[</span><span class="n">perm</span><span class="p">]</span>
         
-        <span class="c1"># Run optimized epoch</span>
         <span class="n">mlp</span><span class="p">,</span> <span class="n">opt_state</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">epoch_loss</span> <span class="o">=</span> <span class="n">train_epoch_jit</span><span class="p">(</span><span class="n">mlp</span><span class="p">,</span> <span class="n">opt_state</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">shuffled_data</span><span class="p">)</span>
         
         <span class="n">losses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">epoch_loss</span><span class="p">)</span>
@@ -878,11 +872,8 @@ $<span class="math notranslate nohighlight">\(L_{v} = \mathbb{E}_{t, x, \epsilon
 
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">):</span>
   <span class="n">P</span> <span class="o">=</span> <span class="n">Ps</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-  <span class="c1"># left-most subplot shows the original 2D data</span>
   <span class="n">axes</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">data</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span><span class="n">data</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span><span class="n">s</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span><span class="n">c</span><span class="o">=</span><span class="s1">&#39;orange&#39;</span><span class="p">)</span>
-  <span class="c1"># Horizontal row label showing the latent dimension D</span>
   <span class="n">axes</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;D=</span><span class="si">{</span><span class="n">Ds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">)</span>
-  <span class="c1"># enforce consistent axis limits and grid on each subplot (do this in a small loop to avoid repetition)</span>
   <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
     <span class="n">axes</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">)</span>
     <span class="n">axes</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="o">-</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">)</span>
@@ -895,7 +886,6 @@ $<span class="math notranslate nohighlight">\(L_{v} = \mathbb{E}_{t, x, \epsilon
   <span class="n">x_hat_vpred</span> <span class="o">=</span> <span class="n">vpreds</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">@</span> <span class="n">P</span>
   <span class="n">axes</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x_hat_vpred</span><span class="p">[:,</span><span class="mi">0</span><span class="p">],</span><span class="n">x_hat_vpred</span><span class="p">[:,</span><span class="mi">1</span><span class="p">],</span><span class="n">s</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
 
-<span class="c1"># Apply tight layout so labels don&#39;t overlap</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
 </pre></div>
 </div>
