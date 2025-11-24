@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>JiT (Just Image Transformers) Swiss Roll Toy Example &#8212; some technical perusings</title>
+    <title>JiT (Just Image Transformers) &#8212; some technical perusings</title>
   
   
   
@@ -178,7 +178,7 @@
 
 
 
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">JiT (Just Image Transformers) Swiss Roll Toy Example</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">JiT (Just Image Transformers)</a></li>
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Misc</span></p>
 <ul class="nav bd-sidenav">
@@ -304,7 +304,7 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>JiT (Just Image Transformers) Swiss Roll Toy Example</h1>
+    <h1>JiT (Just Image Transformers)</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -334,11 +334,12 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="jit-just-image-transformers-swiss-roll-toy-example">
-<h1>JiT (Just Image Transformers) Swiss Roll Toy Example<a class="headerlink" href="#jit-just-image-transformers-swiss-roll-toy-example" title="Link to this heading">#</a></h1>
+  <section class="tex2jax_ignore mathjax_ignore" id="jit-just-image-transformers">
+<h1>JiT (Just Image Transformers)<a class="headerlink" href="#jit-just-image-transformers" title="Link to this heading">#</a></h1>
 <p><a class="reference external" href="https://arxiv.org/pdf/2511.13720">https://arxiv.org/pdf/2511.13720</a></p>
 <p>JiT argues x-prediction is often preferable because clean data <span class="math notranslate nohighlight">\(x\)</span> lies on a low-dimensional manifold (easier for networks to learn), while ε and v span high-dimensional space off-manifold.</p>
 <p>During generation/sampling, transform the network output to the v-space (to solve the ODE <span class="math notranslate nohighlight">\(\frac{dz_t}{dt} = v_\theta(z_t, t)\)</span>)</p>
+<p>This notebook will implement the toy example from the paper using JAX, training a MLP to generate the SWISS roll embedded in a high AMBIENT dimension.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">N</span> <span class="o">=</span> <span class="mi">8192</span>
@@ -416,7 +417,7 @@ v_\theta = x_\theta - \epsilon_\theta &amp; (3)\\
 <p>By consistency conditions, we mean the other two variables (<span class="math notranslate nohighlight">\(\epsilon_\theta\)</span> and <span class="math notranslate nohighlight">\(v_\theta\)</span>) are completely determined by the constraints above.</p>
 <ol class="arabic simple">
 <li><p>by construction, <span class="math notranslate nohighlight">\(x_\theta\)</span> directly from the network.</p></li>
-<li><p>forward-process consistency: whatever clean image and noise the model believes in, they must reproduce the actually observed (or current) <span class="math notranslate nohighlight">\(z_t\)</span> when interpolated</p></li>
+<li><p>forward-process consistency: whatever clean image <span class="math notranslate nohighlight">\(x_\theta\)</span> and noise <span class="math notranslate nohighlight">\(\epsilon_\theta\)</span> the model believes in, they must reproduce the actually observed <span class="math notranslate nohighlight">\(z_t\)</span> when interpolated</p></li>
 </ol>
 <ol class="arabic simple" start="3">
 <li><p>velocity-definition consistency: the predicted velocity is defined to be exactly <span class="math notranslate nohighlight">\(x - \epsilon\)</span>.</p></li>
