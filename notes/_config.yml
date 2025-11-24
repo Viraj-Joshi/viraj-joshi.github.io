@@ -23,6 +23,7 @@ bibtex_bibfiles:
 repository:
   url: https://github.com/Viraj-Joshi/Viraj-Joshi.github.io/notes  # Online location of your book
   branch: main  # Which branch of the repository should be used when creating links (optional)
+  path_to_book: notes/  # Path to the book root within the repository (optional)
 
 # Add GitHub buttons to your book
 # See https://jupyterbook.org/customize/config.html#add-a-link-to-your-repository
