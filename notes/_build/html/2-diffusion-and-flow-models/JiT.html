@@ -30,10 +30,10 @@
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
-    <link rel="stylesheet" type="text/css" href="../_static/proof.css?v=b4b7a797" />
+    <link rel="stylesheet" type="text/css" href="../_static/proof.css" />
     <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=13237357" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
-    <link rel="stylesheet" type="text/css" href="../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css?v=6644e6bb" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css?v=4fa983c6" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=884a7dd3" />
@@ -339,10 +339,10 @@ document.write(`
 <p><a class="reference external" href="https://arxiv.org/pdf/2511.13720">https://arxiv.org/pdf/2511.13720</a></p>
 <p>JiT argues x-prediction is often preferable because clean data <span class="math notranslate nohighlight">\(x\)</span> lies on a low-dimensional manifold (easier for networks to learn), while ε and v span high-dimensional space off-manifold.</p>
 <p>During generation/sampling, transform the network output to the v-space (to solve the ODE <span class="math notranslate nohighlight">\(\frac{dz_t}{dt} = v_\theta(z_t, t)\)</span>)</p>
-<p>This notebook will implement the toy example from the paper using JAX, training a MLP to generate the SWISS roll embedded in a high AMBIENT dimension.</p>
+<p>This notebook will implement the toy example from the paper using JAX, training a MLP to generate the SWISS roll embedded in a high AMBIENT dimension, to prove this point.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">N</span> <span class="o">=</span> <span class="mi">8192</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">N</span> <span class="o">=</span> <span class="mi">10000</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_spiral_data</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">noise</span><span class="o">=</span><span class="mf">0.02</span><span class="p">):</span>
     <span class="n">data</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">make_swiss_roll</span><span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">noise</span><span class="o">=</span><span class="n">noise</span><span class="p">)</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[:,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]]</span> <span class="o">/</span> <span class="mf">10.0</span>
@@ -699,7 +699,7 @@ $<span class="math notranslate nohighlight">\(L_{v} = \mathbb{E}_{t, x, \epsilon
 <span class="p">}</span>
 
 <span class="n">num_samples</span> <span class="o">=</span> <span class="mi">10000</span>
-<span class="n">num_steps</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="n">num_steps</span> <span class="o">=</span> <span class="mi">100</span>
 
 <span class="n">key</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">PRNGKey</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
 <span class="n">ts</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">.01</span><span class="p">,</span><span class="mf">1.0</span><span class="o">-</span><span class="mf">.01</span><span class="p">,</span><span class="n">num_steps</span><span class="p">)</span>
